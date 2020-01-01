@@ -1,0 +1,211 @@
+/* https://archive.casouri.co.uk/note/2018/blog-in-org-mode-revisited/index.html#orge452f26 */
+
+@import url('https://fonts.googleapis.com/css?family=Patua+One');
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
+
+@media only screen and (max-width: 500px) {
+    #content { width:89%; padding-left:5%; padding-bottom: 10px; }
+    .pagetitle { padding-left:5%; }
+    .headerlinks { padding-left:5%; }
+    .right-align { display: none; }
+    .bodytitle { padding-left:5%; padding-top:20px; }
+    .bottom-bar { padding-top:38px; padding-bottom:38px; }
+    .headerlink { margin-right:20px; }
+    .currentlink { padding-right:20px; }
+}
+@media only screen and (min-width: 500px) and (max-width: 750px) {
+    #content { width:76%; padding-left:12%; padding-right:12%; padding-bottom: 30px; }
+    .pagetitle { padding-left:10%; }
+    .bodytitle { padding-left:12%; padding-top:40px; }
+    .headerlinks { position: absolute; right: 12%; }
+    .right-align { position: absolute; right: 12%; }
+    .rwd-break { display: none; }
+    .bottom-bar { padding-top:28px; padding-bottom:28px; }
+    .headerlink { margin-left:20px; }
+    .currentlink { padding-left:20px; }
+}
+@media only screen and (min-width: 750px) and (max-width: 1000px) {
+    #content { width:76%; padding-left:12%; padding-right:12%; padding-bottom: 50px; }
+    .pagetitle { padding-left:10%; }
+    .bodytitle { padding-left:12%; padding-top:60px; }
+    .headerlinks { position: absolute; right: 12%; }
+    .right-align { position: absolute; right: 12%; }
+    .rwd-break { display: none; }
+    .bottom-bar { padding-top:28px; padding-bottom:28px; }
+    .headerlink { margin-left:20px; }
+    .currentlink { padding-left:20px; }
+}
+@media only screen and (min-width: 1000px) and (max-width: 1500px) {
+    #content { width:66%; padding-left:17%; padding-right:17%; padding-bottom: 50px; }
+    .pagetitle { padding-left:15% }
+    .bodytitle { padding-left:17%; padding-top:60px; }
+    .headerlinks { position: absolute; right: 17%; }
+    .right-align { position: absolute; right: 17%; }
+    .rwd-break { display: none; }
+    .bottom-bar { padding-top:28px; padding-bottom:28px; }
+    .headerlink { margin-left:20px; }
+    .currentlink { padding-left:20px; }
+}
+@media only screen and (min-width: 1500px) {
+    #content { width:60%; padding-left:20%; padding-right:20%; padding-bottom: 50px; }
+    .pagetitle { padding-left:20% }
+    .bodytitle { padding-left:23%; padding-top:60px; }
+    .headerlinks { position: absolute; right: 20%; }
+    .right-align { position: absolute; right: 20%; }
+    .rwd-break { display: none; }
+    .bottom-bar { padding-top:28px; padding-bottom:28px; }
+    .headerlink { margin-left:20px; }
+    .currentlink { padding-left:20px; }
+}
+
+
+
+
+
+.pagetitle {
+    font-family: 'Patua One', 'Times New Roman', serif;
+    color: white;
+    font-size: 21px;
+    font-weight: bold;
+}
+.headerlinks {
+    display: inline;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    padding-top:6px;
+    font-family: 'Roboto', 'Arial', sans-serif;
+    text-decoration: none;
+}
+.headerlink {
+    color: white;
+    text-decoration: none;
+}
+.headerlink:visited {
+    color: white;
+}
+.headerlink:hover {
+    color: white;
+    /* text-decoration: underline; */
+    text-decoration: none;
+    border-bottom: 2px solid white;
+}
+.top-bar {
+    background-color: #333;
+    overflow: hidden;
+    padding-top:15px;
+    padding-bottom:15px;
+}
+
+
+
+
+
+
+
+
+.body {
+    font-family: 'Roboto', 'Arial', sans-serif;
+    line-height: 1.5em;
+    color: #717171;
+    font-size: 14px;
+}
+a {
+    text-decoration: none;
+    color: #00ca8a;
+}
+.bodytitle {
+    color: #444444;
+    padding-bottom:0px;
+    font-size: 25px;
+    font-weight: bold;
+    font-family: 'Patua One', 'Times New Roman', serif;
+}
+
+
+
+
+
+
+.bottom-bar {
+    background-color: #333;
+    overflow: hidden;
+}
+.right-align {
+    text-align: right;
+}
+.bottom-text {
+    font-family: 'Roboto', 'Arial', sans-serif;
+    color: #717171;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: bold;
+}
+.bottom-link {
+    font-family: 'Roboto', 'Arial', sans-serif;
+    color: white;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+
+h1,h2,h3,h4,h5,h6 { font-size: 15px; }
+#content { padding-top: 50px; margin: 0 auto; min-height: 500px; font-family: sans-serif; font-size: 15px; }
+a { font-family: monospace; color: blueviolet; text-decoration: none; }
+hr { color: black; background-color: black; border: none; height: 2px; }
+img, .org-svg { width: 600px; }
+table { border-top: 2px solid black;  border-bottom: 2px solid black; border-right: solid white;
+        border-left: solid white; margin-top: 20px; margin-bottom: 20px; }
+th { border-top: none;  border-bottom: 1px solid black; border-right: none;
+     border-left: none; padding-left: 1em; padding-right: 1em; font-weight: normal;}
+td { border-top: none;  border-bottom: none; border-right: none; border-left: none;
+     padding-left: 1em; padding-right: 1em; }
+.tag { background-color: white; }
+code { font-family: 'Roboto Mono'; }
+sub,sup { font-size: 70%; }
+h2 { padding-top: 20px; }
+.footnum { font-size: 100%; }
+.footnum:after { content: ']'; }
+.footnum:before { content: '['; }
+.footref { font-size: 100%; }
+.footref:after { content: ']'; }
+.footref:before { content: '['; }
+.example, .src { font-family: 'Roboto Mono'; box-shadow: 0px 0px 0px #eee; background-color: ghostwhite; pointer-events: none; } /* overflow-x: scroll doesn't work */
+.MathJax { font-size: 1.3em !important; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+div.gallery {
+  margin: 5px;
+  border: 1px solid #ccc;
+  float: left;
+  width: 180px;
+}
+
+div.gallery:hover {
+  border: 1px solid #777;
+}
+
+div.gallery img {
+    width: 180px;
+    height: 100px;
+    object-fit: cover;
+}
+
+div.desc {
+  padding: 15px;
+  text-align: left;
+}

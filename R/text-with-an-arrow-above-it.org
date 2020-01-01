@@ -1,0 +1,47 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Draw text with an arrow above it
+
+The ~textArrow~ fuction is adapted from Figure 8.2 of Paul Murrell's book, R Graphics.[fn:1]
+The function creates a text object using ~grid.text~, then uses ~textCorners~ to get the coordinates for its left (~xl~), right (~xr~), bottom (~yb~), and top (~yt~).
+Then it uses ~grid.segments~ to create an arrow from ~xl~ to ~xr~ that is slightly above ~yt~.
+
+#+BEGIN_SRC R :exports both :file img/arrow.svg :results graphics
+  library(grid)
+
+  textCorners <- function(x) {
+    list(xl=grobX(x, 180),
+         xr=grobX(x, 0),
+         yb=grobY(x, 270),
+         yt=grobY(x, 90))
+  }
+
+  textArrow <- function(label, x=.5, y=.5, direction="first", ..., name="utext") {
+    grid.text(label, x, y, ..., name=paste0(name, ".label"))
+    corners <- textCorners(paste0(name, ".label"))
+    grid.segments(corners$xl, corners$yt + unit(0.3, "lines"),
+                  corners$xr, corners$yt + unit(0.3, "lines"),
+                  gp = gpar(fill="white", lwd=1.5),
+                  arrow=arrow(ends=direction, angle=20, type="closed",
+                              length=unit(3, "mm")), 
+                  name=paste0(name, ".underline"))
+  }
+
+  plot.new()
+  box(which = "plot", lty = "solid")
+  textArrow('Example text', 0.3, 0.5, "first", name="left")
+  textArrow('Example text', 0.7, 0.5, "last", name="right")
+#+END_SRC
+
+#+RESULTS:
+[[file:img/arrow.svg]]
+
+* Footnotes
+
+[fn:1] https://www.amazon.com/gp/product/B07KRP5M4P

@@ -1,0 +1,9 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+HTML_HEAD: <meta http-equiv="Refresh" content="0; url=./about/index.html"/>

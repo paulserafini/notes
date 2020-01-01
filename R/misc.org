@@ -1,0 +1,126 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Miscellaneous
+
+* Output an R object as code
+
+You can use ~dput~ to return the object to the console, or ~dump~ to write it to a file.
+
+#+BEGIN_SRC R :exports both :results output
+  X <- data.frame(X1 = 1:5, X2 = c("A", "B", "C", "D", "E"), X3 = rnorm(5))
+  dput(X)
+#+END_SRC
+
+* Apply a function to several columns of a data frame
+
+#+BEGIN_SRC R :results output :colnames yes :exports both :cache yes
+  library(dplyr)
+
+  X <- data.frame(X1 = rnorm(5),
+                  X2 = rnorm(5),
+                  X3 = rnorm(5))
+
+  X %>%
+    mutate_at(vars(X1, X2, X3), round, 2)
+#+END_SRC
+
+* rbind a list of vectors into a matrix
+
+#+BEGIN_SRC R :results output :colnames yes :exports both :cache yes
+  X1 <- 1:5
+  X2 <- 6:10
+  X3 <- 11:15
+  X <- list(X1, X2, X3)
+
+  do.call(rbind, X)
+#+END_SRC
+
+#+RESULTS[793e1dcb72a689f2238f806383cda90410e50644]:
+:      [,1] [,2] [,3] [,4] [,5]
+: [1,]    1    2    3    4    5
+: [2,]    6    7    8    9   10
+: [3,]   11   12   13   14   15
+
+* Check whether a matrix is symmetric along the diagonal
+
+#+BEGIN_SRC R :results output :exports both :cache yes
+isSymmetric <- function(X) {
+    all(X == t(X))
+}
+
+I <- diag(3)
+isSymmetric(I)
+
+I[1,2] <- 1
+isSymmetric(I)
+#+END_SRC
+
+#+RESULTS[ac043a95ea40a63d5ae3f7d586925227c6e2742d]:
+: [1] TRUE
+: [1] FALSE
+* Sample from a discrete distribution
+
+#+BEGIN_SRC R :results output :exports both :cache yes
+  sample(1:5, 100, replace = T, prob = c(0.1, 0.1, 0.1, 0.1, 0.6))
+#+END_SRC
+
+#+RESULTS[1ece79cb05eb10ab6752000f44d7868b2355d442]:
+:   [1] 4 5 1 5 1 3 5 5 5 2 5 2 5 5 5 5 2 2 4 5 5 5 5 3 5 5 4 2 3 5 3 5 4 2 5 3 5
+:  [38] 3 4 5 2 3 5 5 5 5 5 2 2 5 5 5 5 5 5 5 5 5 5 1 5 1 4 5 1 5 2 2 5 4 5 3 2 4
+:  [75] 4 5 1 4 5 5 5 1 1 5 5 5 5 5 4 5 2 3 5 4 5 4 4 5 5 5
+* Increase the size of all text in ggplot 
+
+Add ~base_size = integer~ to your theme of choice. For example:
+
+#+BEGIN_SRC
+    theme_bw(base_size = 15)
+#+END_SRC
+
+* Shuffle a vector
+
+If you use ~sample~ on a vector without specifying a sample size then it will return the same vector in a different order (probably).
+
+#+BEGIN_SRC R :results output :exports both
+    sample(1:10)
+#+END_SRC
+
+#+RESULTS:
+:  [1]  8  1  4  7  9  6  2  5 10  3
+* Return indices of the elements in a vector which match some criterion
+
+#+BEGIN_SRC R :results output :exports both
+    which(1:5 < 3)
+#+END_SRC
+
+#+RESULTS:
+: [1] 1 2
+* Apply a function to each element of a matrix
+
+#+BEGIN_SRC R :results output :exports both
+  mat <- matrix(rnorm(25), 5, 5)
+  mat[] <- sprintf("%.2f", mat)
+  mat
+#+END_SRC
+* Calculate change scores in dplyr
+
+#+BEGIN_SRC R :exports both :colnames yes
+  library(dplyr)
+
+  set.seed(1)
+  
+  study <- rep(1:2, each=4)
+  drug <- rep(1:2, 2, each=2)
+  timepoint <- rep(1:2, 4)
+  mean <- round(rnorm(8), 2)
+  data <- data.frame(study, drug, timepoint, mean)
+
+  data %>%
+      group_by(study, drug) %>%
+      summarise(change = mean[timepoint == 2] - mean[timepoint == 1])
+#+END_SRC

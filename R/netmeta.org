@@ -1,0 +1,135 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Frequentist NMA with the 'netmeta' package
+
+# https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/frequentist-network-meta-analysis.html
+
+You can create a network diagram using the igraph package:
+
+#+BEGIN_SRC R :session tmp :exports both :file ./img/network.svg :results output graphics :cache yes
+  library(netmeta)
+  library(dplyr)
+  library(tidyr)
+  library(igraph)
+
+  data(Senn2013)
+  data <- Senn2013
+
+  ## https://stackoverflow.com/a/51769190
+  data %>%
+    rowwise() %>%
+    mutate(sorted = paste(sort(c(treat1.long, treat2.long)), collapse = "_")) %>%
+    separate(sorted, c("from", "to")) %>%
+    group_by(from, to) %>%
+    summarize(weight = n()) -> edges
+
+  vertices <- unique(c(edges$from, edges$to))
+  graph <- graph_from_data_frame(edges, directed=FALSE, vertices=vertices)
+
+  ## Appearance
+  layout <- layout_as_star(graph, center = "Placebo", order = NULL)
+  V(graph)$size <- 30
+  V(graph)$color <- "lightblue"
+  V(graph)$frame.color <- "white"
+  V(graph)$label.color <- "black"
+  E(graph)$label.color <- "black"
+
+  plot(graph, layout=layout, edge.label=edges$weight)
+#+END_SRC
+
+#+RESULTS[9e9f7a1ab1ecbb8d02e1a46858bcb12e8904a340]:
+[[file:./img/network.svg]]
+
+Here's how you run the NMA and output a cross-table:
+
+#+BEGIN_SRC R :session tmp :exports both :colnames yes :rownames yes
+  m.netmeta <- netmeta(TE = TE,
+                       seTE = seTE,
+                       treat1 = treat1.long,
+                       treat2 = treat2.long,
+                       studlab = paste(data$studlab),
+                       data = data,
+                       sm = "MD",
+                       comb.fixed = TRUE,
+                       comb.random = FALSE,
+                       reference.group = "Placebo",
+                       details.chkmultiarm = TRUE,
+                       sep.trts = " vs ")
+
+  treatments <- as.character(m.netmeta$trts)
+  n <- length(treatments)
+
+  TE <- matrix(m.netmeta$TE.fixed, nrow=n, ncol=n,
+               dimnames=list(treatments, treatments))
+
+  LL <- matrix(m.netmeta$lower.fixed, nrow=n, ncol=n,
+               dimnames=list(treatments, treatments))
+
+  UL <- matrix(m.netmeta$upper.fixed, nrow=n, ncol=n,
+               dimnames=list(treatments, treatments))
+
+  cross_table <- TE
+  cross_table[] <- sprintf("%.02f (%.02f, %.02f)", TE, LL, UL)
+  cross_table[1:3, 1:3]
+#+END_SRC
+
+If you like you can make the upper triangle and the diagonal blank:
+
+#+BEGIN_SRC R :session tmp :exports both :colnames yes :rownames yes
+  cross_table[upper.tri(cross_table, diag=TRUE)] <- ""
+  cross_table[1:3, 1:3]
+#+END_SRC
+
+And here's how you create a forest plot from the same output:
+
+#+BEGIN_SRC R :session tmp :exports both :file ./img/nma.svg :results output graphics
+  library(forestplot)
+
+  ref <- 'Placebo'
+  TE <- TE[, ref]
+  LL <- LL[, ref]
+  UL <- UL[, ref]
+
+  data.frame(intervention = treatments, TE, LL, UL, stringsAsFactors = FALSE) %>%
+    mutate(formatted = sprintf("%.02f [%.02f, %.02f]", TE, LL, UL)) %>%
+    mutate_at(vars(TE, LL, UL), round, 2) -> data
+
+  data %>%
+    filter(intervention != ref) %>%
+    select(mean = TE, lower = LL, upper = UL) -> numbers
+  numbers <- rbind(c(NA, NA, NA), numbers)
+
+  data %>%
+    filter(intervention != ref) %>%
+    select(intervention, formatted) -> text
+  header <- c("Intervention", "MD (95% CI)")
+  text <- rbind(header, text)
+
+  lim <- max(abs(min(numbers$lower[-1])), abs(max(numbers$upper[-1])))
+
+  # Create centered x-axis label
+  a <- "active drug"
+  b <- "placebo"
+  left <- paste0("Favors ", a)
+  right <- paste0("Favors ", b)
+  chars <- abs(nchar(right) - nchar(left) - 1)
+  buffer <- strrep(" ", chars)
+  lab <- paste0(left, "        ", right, buffer)
+
+  forestplot(text,
+             numbers,
+             graph.pos = 2,
+             is.summary=c(TRUE,rep(FALSE, n - 1)),
+             xlab = lab,
+             clip=c(-lim, 0, lim),
+             xticks=c(-lim, 0, lim))
+#+END_SRC
+
+#+RESULTS[93ee4485ba90bf4da724516da4e6ad992250a231]:
+[[file:./img/nma.svg]]

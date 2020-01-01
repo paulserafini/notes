@@ -1,0 +1,84 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Create a summary table of meta-analyses on several outcomes
+
+Suppose you have the following data set:
+
+#+NAME: example-data
+| study | intervention | outcome |  n |   N |
+|-------+--------------+---------+----+-----|
+|     0 | treatment    |       0 | 16 | 175 |
+|     0 | control      |       0 | 80 | 221 |
+|     0 | treatment    |       1 | 46 | 208 |
+|     0 | control      |       1 | 89 | 138 |
+|     1 | treatment    |       0 | 62 | 233 |
+|     1 | control      |       0 | 77 | 143 |
+|     1 | treatment    |       2 | 21 | 118 |
+|     1 | control      |       2 | 88 | 102 |
+|     2 | treatment    |       1 | 18 | 222 |
+|     2 | control      |       1 | 61 | 249 |
+|     2 | treatment    |       2 | 68 | 114 |
+|     2 | control      |       2 | 64 | 135 |
+
+You want to create a table with the sample size weighted mean for each intervention for each outcome, as well as the summary OR for the treatment and the control from a meta-analysis.
+
+#+BEGIN_SRC R :var data=example-data :colnames yes :exports both
+  library(dplyr)
+  library(meta)
+  library(tidyr)
+
+  # Put data into wide format
+  data %>%
+    unite(value, n, N) %>%
+    spread(intervention, value) %>%
+    separate(treatment, c("nt", "Nt")) %>%
+    separate(control, c("nc", "Nc")) %>%
+    mutate_at(vars(nt, Nt, nc, Nc), as.numeric) -> wide
+
+  # Calculate sample size weighted mean for each outcome for each intervention
+  wide %>%
+    group_by(outcome) %>%
+    summarise(studies = n(),
+              treatment = weighted.mean(nt/Nt*100, Nt),
+              control = weighted.mean(nc/Nc*100, Nc)) %>%
+    mutate_at(vars(treatment, control), round, 2) -> means
+
+  # Perform MA for each outcome
+  ma_output <- list()
+  outcomes <- means$outcome
+  n <- length(outcomes)
+  for (i in 1:n) {
+    filtered <- filter(wide, outcome == outcomes[i])
+    sum <- metabin(nt, Nt, nc, Nc, data=filtered, studlab=study, sm="OR")
+    ma_output[[i]] <- c(outcomes[i], sum$TE.random, sum$lower.random,
+                        sum$upper.random, sum$pval.random)
+  }
+
+  # Convert MA output into a table
+  ma_output <- do.call(rbind, ma_output) 
+  ma_output <- data.frame(ma_output, stringsAsFactors=FALSE)
+  colnames(ma_output) <- c("outcome", "or", "ll", "ul", "p")
+
+  # Convert log(OR) back to OR
+  ma_output %>%
+    mutate_at(vars(or, ll, ul), exp) %>%
+    mutate(OR = sprintf("%.02f [%.02f, %.02f]", or, ll, ul)) %>%
+    mutate(p = ifelse(p < 0.01, "< 0.01", sprintf("%.02f", p))) %>%
+    select(outcome, OR, p) -> ma_output
+
+  # Assemble final table
+  merge(means, ma_output)
+#+END_SRC
+
+#+RESULTS:
+| outcome | studies | treatment | control | OR                 | p      |
+|---------+---------+-----------+---------+--------------------+--------|
+|       0 |       2 |     19.12 |   43.13 | 0.24 [0.14, 0.42]  | < 0.01 |
+|       1 |       2 |     14.88 |   38.76 | 0.20 [0.12, 0.35]  | < 0.01 |
+|       2 |       2 |     38.36 |   64.14 | 0.24 [0.01, 10.72] | 0.46   |

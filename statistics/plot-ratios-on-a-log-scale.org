@@ -1,0 +1,162 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Ratios should be plotted on a log scale
+
+Rex Galbraith[fn:1] offers three reasons to plot odds ratios on a log scale as opposed to a linear scale.
+
+First, an odds ratio ($\psi$) and its reciprocal ($1/\psi$) should be the same distance from 1, since they represent the same magnitude in different directions. This is not the case on a linear scale,
+
+#+BEGIN_SRC R :exports results :file ./img/linear.svg :width 5 :height 0.5 :results output graphics :cache yes
+  par(mar = c(2, 0, 0, 0))
+  plot(runif(10, 0.25, 4),
+       runif(10, 0.25, 4),
+       xlab="",
+       ylab="",
+       xlim=c(0.25, 4),
+       ylim=c(0.25, 4),
+       axes=FALSE, type="n")
+
+  axis(1,
+       c(1/4, 1/2, 1/1, 2/1, 4/1),
+       labels = c("1/4", "1/2", "1", "2", "4"))
+#+END_SRC
+
+#+RESULTS[0171af4efa55e0f8830e0c820d296c0d794bdc93]:
+[[file:./img/linear.svg]]
+
+but it is the case on a log scale:
+
+#+BEGIN_SRC R :exports results :file ./img/log.svg :width 5 :height 0.5 :results output graphics :cache yes
+  par(mar = c(2, 0, 0, 0))
+  plot(runif(10, 0.25, 4),
+       runif(10, 0.25, 4),
+       xlab="",
+       ylab="",
+       xlim=c(0.25, 4),
+       ylim=c(0.25, 4),
+       cex.axis=0.2,
+       axes=FALSE, type="n", log='x')
+
+  axis(1,
+       c(1/4, 1/2, 1/1, 2/1, 4/1),
+       labels = c("1/4", "1/2", "1", "2", "4"))
+#+END_SRC
+
+#+RESULTS[f173fe544bc16c17143b4ca95209739a3bdc2ec3]:
+[[file:./img/log.svg]]
+
+Second, the interpretation of a one unit change in an odds ratio depends on where you are on the scale. An increase from 1 to 2 is an increase of 50%, and an increase from 4 to 5 is an increase of 25%, yet the distance between them on the linear scale is the same. An increase from 2 to 4 is also 50%, but on the linear scale the distance between 2 and 4 is twice the distance between 1 and 2.
+
+#+CAPTION: Frequency table
+|           | /Event/ | /No event/ |
+|-----------+-------+----------|
+| /Treatment/ | a     | b        |
+| /Control/   | c     | d        |
+
+Third, defining the 95% confidence interval on $\psi = ad/bc$ as
+
+$$exp\Big( ln(\psi) \pm 1.96 \sqrt{1/a + 1/b + 1/c + 1/d}\Big ),$$
+
+the width of the confidence interval when plotted on a linear scale will increase with the magnitude of $\psi$, even for the same sample size.
+Take the following data:
+
+#+CAPTION: Trial 1
+|           |   /M/ | /not M/ |
+|-----------+-----+-------|
+| /Treatment/ | 100 |   100 |
+| /Control/   | 100 |   100 |
+
+#+CAPTION: Trial 2
+|           |   /M/ | /not M/ |
+|-----------+-----+-------|
+| /Treatment/ | 150 |    50 |
+| /Control/   | 100 |   100 |
+
+
+The $\psi$ for the first trial is 1 (95% CI: 0.68, 1.48) and the $\psi$ for the second trial is 3 (95% CI: 1.96, 4.56).
+When the $\psi$ are plotted on a linear scale, the estimate from the first trial appears to be more accurate even though they have the same sample size:
+
+#+BEGIN_SRC R :exports results :file ./img/linear2.svg :width 5 :height 3 :results output graphics
+  a1 <- 100
+  b1 <- 100
+  c1 <- 100
+  d1 <- 100
+  OR1 <- (a1 * d1) / (b1 * c1)
+  LL1 <- exp(log(OR1) - 1.96 * sqrt(1/a1 + 1/b1 + 1/c1 + 1/d1))
+  UL1 <- exp(log(OR1) + 1.96 * sqrt(1/a1 + 1/b1 + 1/c1 + 1/d1))
+
+  a2 <- 150
+  b2 <- 50
+  c2 <- 100
+  d2 <- 100
+  OR2 <- (a2 * d2) / (b2 * c2)
+  LL2 <- exp(log(OR2) - 1.96 * sqrt(1/a2 + 1/b2 + 1/c2 + 1/d2))
+  UL2 <- exp(log(OR2) + 1.96 * sqrt(1/a2 + 1/b2 + 1/c2 + 1/d2))
+
+  OR <- c(OR1, OR2)
+  LL <- c(LL1, LL2)
+  UL <- c(UL1, UL2)
+  trial <- 1:2
+
+  par(mar = c(2, 4, 0.5, 0.5))
+  plot(OR, trial,
+       xlim=c(min(LL), max(UL)),
+       pch=19,
+       ylim=c(0, 3),
+       yaxt='n',
+       xlab="", ylab="")
+  axis(2, c(1, 2), c("Trial 1", "Trial 2"), las=1)
+  arrows(LL, trial, UL, trial, length=0.05, angle=90, code=3)
+#+END_SRC
+
+#+RESULTS:
+[[file:./img/linear2.svg]]
+
+However, when they are plotted on a log scale they are approximately accurate:
+
+#+BEGIN_SRC R :exports results :file ./img/log2.svg :width 5 :height 3 :results output graphics
+  a1 <- 100
+  b1 <- 100
+  c1 <- 100
+  d1 <- 100
+  OR1 <- (a1 * d1) / (b1 * c1)
+  LL1 <- exp(log(OR1) - 1.96 * sqrt(1/a1 + 1/b1 + 1/c1 + 1/d1))
+  UL1 <- exp(log(OR1) + 1.96 * sqrt(1/a1 + 1/b1 + 1/c1 + 1/d1))
+
+  a2 <- 150
+  b2 <- 50
+  c2 <- 100
+  d2 <- 100
+  OR2 <- (a2 * d2) / (b2 * c2)
+  LL2 <- exp(log(OR2) - 1.96 * sqrt(1/a2 + 1/b2 + 1/c2 + 1/d2))
+  UL2 <- exp(log(OR2) + 1.96 * sqrt(1/a2 + 1/b2 + 1/c2 + 1/d2))
+
+  OR <- c(OR1, OR2)
+  LL <- c(LL1, LL2)
+  UL <- c(UL1, UL2)
+  trial <- 1:2
+
+  par(mar = c(2, 4, 0.5, 0.5))
+  plot(OR, trial,
+       xlim=c(min(LL), max(UL)),
+       pch=19,
+       ylim=c(0, 3),
+       yaxt='n',
+       xlab="", ylab="",
+       log='x')
+  axis(2, c(1, 2), c("Trial 1", "Trial 2"), las=1)
+  arrows(LL, trial, UL, trial, length=0.05, angle=90, code=3)
+#+END_SRC
+
+#+RESULTS:
+[[file:./img/log2.svg]]
+
+* Footnotes
+
+[fn:1] https://doi.org/10.1002/sim.4780070807

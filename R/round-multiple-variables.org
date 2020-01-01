@@ -1,0 +1,41 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Round multiple variables simultaneously
+
+#+BEGIN_SRC R :exports both :results output
+  massRound <- function (..., digits=2) {
+
+    numbers <- list(...)
+    names <- match.call()
+    n <- length(numbers)
+
+    if (length(digits) == 1) {
+      digits <- rep(digits, n)
+    }
+
+    for (i in 1:n) {
+      name <- names[[i+1]]
+      name <- as.character(name)
+      value <- numbers[[i]]
+      new.value <- round(value, digits[i])
+      assign(name, new.value, envir = .GlobalEnv)
+    }
+  }
+
+  set.seed(1)
+  x <- rnorm(1)
+  y <- rnorm(1)
+  z <- rnorm(5)
+
+  massRound(x, y, z, digits=0:2)
+
+  x
+  y
+  z
+#+END_SRC

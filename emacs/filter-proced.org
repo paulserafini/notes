@@ -1,0 +1,23 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Filter the proced buffer
+
+#+BEGIN_SRC emacs-lisp
+  (defun proced-narrow ()
+    "Filter the the proced buffer."
+    (interactive)
+    (let ((buffer-read-only nil)
+          (search-term (read-string "Keep processes containing match for regexp: "))
+          (col-number (current-column)))
+      (if (string= search-term "")
+          (revert-buffer)
+        (progn (beginning-of-buffer)
+               (keep-lines search-term)
+               (move-to-column col-number t)))))
+#+END_SRC

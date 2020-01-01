@@ -1,0 +1,42 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Calculate the change in the daily average
+
+Suppose you have the mean plasma glucose for breakfast, lunch, and dinner at the beginning (~B1~, ~B2~, ~B3~) and end (~E1~, ~E2~, ~E3~) of a trial.
+You want the change in the daily average from the beginning to the end of the trial, as well as its standard error.
+The variance of the sum of ~B1~, ~B2~, and ~B3~ is
+
+\begin{align*}
+var(B1 + B2 + B3) = var(B1) &+ var(B2) + var(B3) \\
+                  &+ 2 \times cov(B1, B2) \\
+                  &+ 2 \times cov(B1, B3) \\
+                  &+ 2 \times cov(B2, B3)
+\end{align*}
+
+You can estimate ~cov(Bi, Bj)~ by taking ~sd(Bi) * sd(Bj) * cor(Bi, Bj)~, where ~cor(Bi, Bj)~ is taken from the literature. If a correlation estimate does not exist then you can use something relatively large, e.g. 0.8---this will produce a larger standard error, but we can live with that.
+
+From this we derive the variance of the mean of ~B1~, ~B2~, and ~B3~ by dividing by three:
+
+\begin{equation*}
+var(mean(B1, B2, B3)) = var(B1 + B2 + B3) / 3
+\end{equation*}
+
+Now we have the daily average for the beginning (~B~) and the end (~E~) of the trial, as well as their variance.
+The change from the beginning to the end of the trial is (obviously) given by ~E - B~.
+To calculate the variance of the difference between ~B~ and ~E~, we take
+
+\begin{equation*}
+s^2_D = var(B) + var(E) - 2 \times cov(B, E)
+\end{equation*}
+
+and then we can calculate the standard error of the difference
+
+\begin{equation*}
+s^2_{\bar{D}} = \sqrt{\frac{s^2_D}{n}}
+\end{equation*}

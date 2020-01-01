@@ -1,0 +1,163 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+OPTIONS: ^:nil
+
+#+TITLE: Use mathematical notation in R
+
+You can view the documentation using ~?plotmath~.
+
+| Syntax                         | Meaning                                 | Example                          |
+|--------------------------------+-----------------------------------------+----------------------------------|
+| ‘x + y’                        | x plus y                                | $x + y$                          |
+| ‘x - y’                        | x minus y                               | $x - y$                          |
+| ‘x*y’                          | juxtapose x and y                       | $xy$                             |
+| ‘x/y’                          | x forwardslash y                        | $x/y$                            |
+| ‘x %+-% y’                     | x plus or minus y                       | $x \pm y$                          |
+| ‘x %/% y’                      | x divided by y                          | $x \div y$                          |
+| ‘x %*% y’                      | x times y                               | $x \times y$                          |
+| ‘x %.% y’                      | x cdot y                                | $x \cdot y$                          |
+| ‘x[i]’                         | x subscript i                           | $x_i$                            |
+| ‘x^2’                          | x superscript 2                         | $x^2$                            |
+| ‘paste(x, y, z)’               | juxtapose x, y, and z                   | $xyz$                            |
+| ‘sqrt(x)’                      | square root of x                        | $\sqrt{x}$                       |
+| ‘sqrt(x, y)’                   | yth root of x                           | $\sqrt[y]{x}$                    |
+| ‘x == y’                       | x equals y                              | $x = y$                          |
+| ‘x != y’                       | x is not equal to y                     | $x \neq y$                          |
+| ‘x < y’                        | x is less than y                        | $x < y$                          |
+| ‘x <= y’                       | x is less than or equal to y            | $x \leq y$                          |
+| ‘x > y’                        | x is greater than y                     | $x \ge y$                          |
+| ‘x >= y’                       | x is greater than or equal to y         | $x \ge y$                          |
+| ‘!x’                           | not x                                   | !x                               |
+| ‘x %~~% y’                     | x is approximately equal to y           | $x \approx y$                          |
+| ‘x %=~% y’                     | x and y are congruent                   | $x \cong y$                          |
+| ‘x %==% y’                     | x is defined as y                       | $x \equiv y$                          |
+| ‘x %prop% y’                   | x is proportional to y                  | $x \propto y$                          |
+| ‘x %~% y’                      | x is distributed as y                   | $x \sim y$                          |
+| ‘plain(x)’                     | draw x in normal font                   | x                                |
+| ‘bold(x)’                      | draw x in bold font                     | *x*                                |
+| ‘italic(x)’                    | draw x in italic font                   | /x/                                |
+| ‘bolditalic(x)’                | draw x in bolditalic font               | /*x*/                              |
+| ‘symbol(x)’                    | draw x in symbol font                   | $x$                              |
+| ‘list(x, y, z)’                | comma-separated list                    | x, y, z                          |
+| ...                            | ellipsis (height varies)                | $\ldots$                         |
+| ‘cdots’                        | ellipsis (vertically centred)           | $\cdots$                              |
+| ‘ldots’                        | ellipsis (at baseline)                  | $\ldots$                         |
+| ‘x %subset% y’                 | x is a proper subset of y               | $x \subset y$                          |
+| ‘x %subseteq% y’               | x is a subset of y                      | $x \subseteq y$                  |
+| ‘x %notsubset% y’              | x is not a subset of y                  | $x \not\subset y$                         |
+| ‘x %supset% y’                 | x is a proper superset of y             | $x \supset y$                          |
+| ‘x %supseteq% y’               | x is a superset of y                    | $x \supseteq y$                  |
+| ‘x %in% y’                     | x is an element of y                    | $x \in y$                          |
+| ‘x %notin% y’                  | x is not an element of y                | $x \notin y$                          |
+| ‘hat(x)’                       | x with a circumflex                     | $\hat{x}$                        |
+| ‘tilde(x)’                     | x with a tilde                          | $\tilde{x}$                           |
+| ‘dot(x)’                       | x with a dot                            | $\dot{x}$                        |
+| ‘ring(x)’                      | x with a ring                           | $\mathring{x}$                   |
+| ‘bar(xy)’                      | xy with bar                             | $\bar{x}$                        |
+| ‘widehat(xy)’                  | xy with a wide circumflex               | $\widehat{xy}$                   |
+| ‘widetilde(xy)’                | xy with a wide tilde                    | $\widetilde{xy}$                 |
+| ‘x %<->% y’                    | x double-arrow y                        | $x \leftrightarrow y$                          |
+| ‘x %->% y’                     | x right-arrow y                         | $x \rightarrow y$                          |
+| ‘x %<-% y’                     | x left-arrow y                          | $x \leftarrow y$                          |
+| ‘x %up% y’                     | x up-arrow y                            | $x \uparrow y$                          |
+| ‘x %down% y’                   | x down-arrow y                          | $x \downarrow y$                          |
+| ‘x %<=>% y’                    | x is equivalent to y                    | $x \Leftrightarrow y$                          |
+| ‘x %=>% y’                     | x implies y                             | $x \Rightarrow y$                          |
+| ‘x %<=% y’                     | y implies x                             | $x \Leftarrow y$                          |
+| ‘x %dblup% y’                  | x double-up-arrow y                     | $x \Uparrow y$                          |
+| ‘x %dbldown% y’                | x double-down-arrow y                   | $x \Downarrow y$                          |
+| ‘alpha’ - ‘omega’              | Greek symbols                           | $\alpha$ - $\omega$                        |
+| ‘Alpha’ - ‘Omega’              | uppercase Greek symbols                 | $A$ - $\Omega$                        |
+| ‘theta1, phi1, sigma1, omega1’ | cursive Greek symbols                   | $\vartheta$, $\varphi$, $\varsigma$ $\varpi$                |
+| ‘Upsilon1’                     | capital upsilon with hook               | $\varUpsilon$                    |
+| ‘aleph’                        | first letter of Hebrew alphabet         | $\aleph$                              |
+| ‘infinity’                     | infinity symbol                         | $\infty$                              |
+| ‘partialdiff’                  | partial differential symbol             | $\partial$                              |
+| ‘nabla’                        | nabla, gradient symbol                  | $\nabla$                              |
+| ‘32*degree’                    | 32 degrees                              | $32^\circ$                           |
+| ‘60*minute’                    | 60 minutes of angle                     | $60^{\prime}$                            |
+| ‘30*second’                    | 30 seconds of angle                     | $30^{\prime\prime}$                           |
+| ‘displaystyle(x)’              | draw x in normal size (extra spacing)   | $\displaystyle x$                |
+| ‘textstyle(x)’                 | draw x in normal size                   | $\textstyle x$                   |
+| ‘scriptstyle(x)’               | draw x in small size                    | $\scriptstyle x$                 |
+| ‘scriptscriptstyle(x)’         | draw x in very small size               | $\scriptscriptstyle x$           |
+| ‘underline(x)’                 | draw x underlined                       | $\underline{x}$                  |
+| ‘x ~~ y’                       | put extra space between x and y         | $x ~~ y$                         |
+| ‘x + phantom(0) + y’           | leave gap for "0", but don't draw it    | $x + \phantom{0} + y$            |
+| ‘x + over(1, phantom(0))’      | leave vertical gap for "0" (don't draw) | $x + \frac{1}{\phantom{0}}$      |
+| ‘frac(x, y)’                   | x over y                                | $\frac{x}{y}$                    |
+| ‘over(x, y)’                   | x over y                                | $\frac{x}{y}$                    |
+| ‘atop(x, y)’                   | x over y (no horizontal bar)            | $x \atop y$                      |
+| ‘sum(x[i], i==1, n)’           | sum x[i] for i equals 1 to n            | $\sum\limits^n_{i=1} x_i$              |
+| ‘prod(plain(P)(X==x), x)’      | product of P(X=x) for all values of x   | $\prod \textrm{P}(X = x)$            |
+| ‘integral(f(x)*dx, a, b)’      | definite integral of f(x) wrt x         | $\displaystyle \int^a_b (f(x))$     |
+| ‘union(A[i], i==1, n)’         | union of A[i] for i equals 1 to n       | $\displaystyle \bigcup_{i=1}^n A_i$ |
+| ‘intersect(A[i], i==1, n)’     | intersection of A[i]                    | $\displaystyle \bigcap_{i=1}^n A_i$ |
+| ‘lim(f(x), x %->% 0)’          | limit of f(x) as x tends to 0           | $\displaystyle \lim_{x \rightarrow 0} (f(x))$ |
+| ‘min(g(x), x > 0)’             | minimum of g(x) for x greater than 0    | $\displaystyle \min_{x > 0} (g(x))$ |
+| ‘inf(S)’                       | infimum of S                            | $\inf{S}$                        |
+| ‘sup(S)’                       | supremum of S                           | $\sup{S}$                           |
+| ‘x^y + z’                      | normal operator precedence              | $x^y + z$                        |
+| ‘x^(y + z)’                    | visible grouping of operands            | $x^{(y + z)}$                       |
+| ‘x^{y + z}’                       | invisible grouping of operands          | $x^{y + z}$                         |
+| ‘group("(",list(a, b),"]")’    | specify left and right delimiters       | $(a,\ b]$                        |
+| ‘bgroup("(",atop(x,y),")")’    | use scalable delimiters                 | $\left(a \atop b\right)$         |
+| ‘group(lceil, x, rceil)’       | special delimiters                      | $\lceil x \rceil$                          |
+| ‘group(lfloor, x, rfloor)’     | special delimiters                      | $\lfloor x \rfloor$                          |
+
+To use a special symbol in a graphic, wrap it in the ~expression~ function:
+
+#+BEGIN_SRC R :exports both :file ./img/special.svg :results output graphics :cache
+  library(ggplot2)
+
+  X <- data.frame(A = sample(c("a[1]", "a[2]"), 5000, replace=TRUE),
+                  B = sample(c("b[1]", "b[2]"), 5000, replace=TRUE),
+                  C = rnorm(5000))
+
+  ggplot(X, aes(x = C)) +
+  xlab(expression(hat(mu))) +
+    geom_histogram()
+#+END_SRC
+#+ATTR_LATEX: :width 6cm :height 6cm
+#+RESULTS[8597fcc4a7804299aa5594cf74196f005403744b]:
+[[file:./img/special.svg]]
+
+To combine a special symbol with text, use ~paste~:
+
+#+BEGIN_SRC R :exports both :file ./img/special_and_text.svg :results output graphics :cache yes
+  library(ggplot2)
+
+  X <- data.frame(A = sample(c("a[1]", "a[2]"), 5000, replace=TRUE),
+                  B = sample(c("b[1]", "b[2]"), 5000, replace=TRUE),
+                  C = rnorm(5000))
+
+  ggplot(X, aes(x = C)) +
+    xlab(expression(paste("Plot of ", hat(mu)))) +
+    geom_histogram()
+#+END_SRC
+#+ATTR_LATEX: :width 6cm :height 6cm
+#+RESULTS[d543968eed7415bcb7c20ced13233c82d06e8572]:
+[[file:./img/special_and_text.svg]]
+
+To use them in ~facet_grid~, use the ~labeller=label_parsed~ option.
+
+#+BEGIN_SRC R :exports both :file ./img/grid.svg :results output graphics :cache yes
+  library(ggplot2)
+
+  X <- data.frame(A = sample(c("a[1]", "a[2]"), 5000, replace=TRUE),
+                  B = sample(c("b[1]", "b[2]"), 5000, replace=TRUE),
+                  C = rnorm(5000))
+
+  ggplot(X, aes(x = C)) +
+    geom_histogram() +
+    facet_grid(A ~ B, labeller=label_parsed)
+#+END_SRC
+#+ATTR_LATEX: :width 6cm :height 6cm
+#+RESULTS[1f9e00ae04812f07a9694600ffc432cbe0b448fa]:
+[[file:./img/expression.svg]]

@@ -1,0 +1,18 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Reversing the format function
+
+#+BEGIN_SRC emacs-lisp
+  (defun deformat (fmt str)
+    (let* ((n (s-count-matches "%s" fmt))
+           (regex (apply 'format fmt (make-list n "\\(.+\\)"))))
+        (cl-loop for i from 1 to n
+                 if (string-match regex str)
+                 collect (match-string i str))))
+#+END_SRC

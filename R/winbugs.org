@@ -1,0 +1,52 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Convert data into WinBUGS format
+
+Suppose you have a data table such as 
+
+#+NAME: winbugs
+| ID | t |   y |   se |
+|----+---+-----+------|
+| S1 | 1 | 0.1 | 0.01 |
+| S1 | 2 | 0.1 | 0.01 |
+| S2 | 1 | 0.1 | 0.01 |
+| S2 | 3 | 0.1 | 0.01 |
+
+Where ~ID~ is the study ID, ~t~ is the treatment group, ~y~ is a continuous outcome, and ~se~ is the standard error of ~y~.
+This code will convert that data for use with WinBUGS.
+
+#+BEGIN_SRC R :exports both :var data=winbugs :colnames yes
+  library(dplyr)
+  library(tidyr)
+
+  count_streak <- function(col) {
+    sequence(rle(as.character(col))$lengths)
+  }
+
+  data %>%
+    arrange(ID, t) %>%
+    mutate(num = count_streak(ID)) %>%
+    gather(Var, Val, t:se) %>%
+    mutate(num = paste0("[,", num, "]")) %>%
+    unite(VarT, Var, num, sep="") %>%
+    spread(VarT, Val)
+#+END_SRC
+
+#+RESULTS:
+| ID | se[,1] | se[,2] | t[,1] | t[,2] | y[,1] | y[,2] |
+|----+--------+--------+-------+-------+-------+-------|
+| S1 |   0.01 |   0.01 |     1 |     2 |   0.1 |   0.1 |
+| S2 |   0.01 |   0.01 |     1 |     3 |   0.1 |   0.1 |
+
+The idea is to 
+  1. Use ~arrange~ by ~ID~ and ~t~, since the lower group should be first, and then create a "streak" count (~num~) of the ~t~ column to determine the first, second, etc. group.
+  2. Use ~gather~ to combine ~t~, ~y~, and ~se~ into a single column (~Val~), with a key column (~Var~)
+  3. Use ~mutate~ to convert the streak count (~num~) into the proper format (~[,i]~)
+  4. Concatenate ~t~ and ~num~ into a single column (~VarT~)
+  5. Use ~spread~ to turn ~VarT~ into the header

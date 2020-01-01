@@ -1,0 +1,91 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Median Polish
+
+In this example I use Tukey's[fn:1] data set from Exploratory Data Analysis (p. 333).
+
+#+BEGIN_SRC R :session tmp :exports both :file ./img/tukey_additivity_plot.svg :results output graphics
+    library(ggplot2)
+    library(dplyr)
+
+    # Assemble the data set
+    temp <- c(65.2, 63.4, 57, 46.1, 35.8, 28.4, 25.3,
+              90.1, 88.3, 82.7, 70.8, 58.4, 52.1, 49.7,
+              94.6, 93.7, 88.3, 76.4, 64.2, 57.1, 55.3)
+    city <- rep(c("Flagstaff", "Phoenix", "Yuma"), each = 7)
+    month <- rep(c("July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan"), 3)
+    month <-  factor(month, levels=c("July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan"))
+    data <- data.frame(city, month, temp)
+
+    # Transform the data into a two-way table
+    table <- xtabs(temp ~ city + month, data)
+
+    # Run the median polish
+    output <- medpolish(table)
+
+    # Extract the relevant data
+    residuals <- output$residuals
+    alpha <- output$row
+    beta <- output$col
+    mu <- output$overall
+
+    # Calculate the diagnostic comparison values
+    pairs <- list()
+    i <- 1
+    for (a in seq_along(alpha)) {
+      for (b in seq_along(beta)) {
+        pairs[[i]] <- c(alpha[a] * beta[b] / mu, residuals[a, b])
+        i <- i + 1
+      }
+    }
+    pairs <- do.call(rbind, pairs)
+
+    # Create a Tukey Additivity Plot using ggplot
+    data.frame(comparison = pairs[,1], residual = pairs[,2]) %>%
+      ggplot(aes(x = comparison, y = residual)) +
+      geom_point(shape=21, size=2) +
+      geom_hline(yintercept = 0, linetype = "dotted") +
+      geom_vline(xintercept = 0, linetype = "dotted") +
+      xlab("Diagnostic Comparison Values") +
+      ylab("Residuals") +
+      ggtitle("Tukey Additivity Plot") +
+      theme_bw(base_size = 13) +
+      theme(panel.border = element_rect(fill=NA, colour = "black", size=1),
+            panel.grid = element_blank())
+#+END_SRC
+
+You can also present the results in table form:
+
+#+BEGIN_SRC R :session tmp :exports both
+  # Round with trailing zeros
+  residuals[] <- sprintf("%.02f", residuals)
+  alpha[] <- sprintf("/%.02f/", alpha)
+  beta[] <- sprintf("/%.02f/", beta)
+  mu <- sprintf("/%.02f/", mu)
+  cols <- paste0("*", colnames(residuals), "*")
+  rows <- paste0("*", rownames(residuals), "*")
+
+  output_table <- cbind(rows, alpha, residuals)
+  output_table <- rbind(c("/eff/", mu, beta), output_table)
+  output_table <- rbind(c("", "/eff/", cols), output_table)
+
+  dimnames(output_table) <- NULL
+  output_table
+#+END_SRC
+
+#+RESULTS:
+|           | /eff/    |  *July* |   *Aug* |  *Sept* |  *Oct* |    *Nov* |    *Dec* |    *Jan* |
+| /eff/       | /70.80/  | /19.10/ | /17.30/ | /11.90/ | /0.00/ | /-12.20/ | /-18.70/ | /-21.10/ |
+| *Flagstaff* | /-24.70/ |   0.0 |   0.0 |  -1.0 |  0.0 |    1.9 |    1.0 |    0.3 |
+| *Phoenix*   | /0.00/   |   0.2 |   0.2 |   0.0 |  0.0 |   -0.2 |    0.0 |    0.0 |
+| *Yuma*      | /5.60/   |  -0.9 |   0.0 |   0.0 |  0.0 |    0.0 |   -0.6 |   -0.0 |
+
+* Footnotes
+
+[fn:1] https://www.worldcat.org/title/exploratory-data-analysis/oclc/614720136
