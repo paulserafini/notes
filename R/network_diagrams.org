@@ -6,7 +6,7 @@
 #+END_SRC
 #+CALL: add-bars()
 
-#+TITLE: Frequentist NMA with the 'netmeta' package
+#+TITLE: Network diagrams
 
 # https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/frequentist-network-meta-analysis.html
 
