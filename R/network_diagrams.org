@@ -32,7 +32,7 @@ If you have a list where each element is a vector containing a the trial and its
   trials <- list(c("trial 1", 0, 1),
                  c("trial 2", 0, 1, 2))
 
-  comparisons <- lapply(trials, function(i) combinations(length(i)-1, 2, i[-1], repeats.allowed=FALSE))
+  comparisons <- lapply(trials, function(i) combinations(length(i)-1, 2, i[-1]))
   comparisons <- do.call(rbind, comparisons)
 #+END_SRC
 
