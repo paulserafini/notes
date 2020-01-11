@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-10 Fri 22:45 -->
+<!-- 2020-01-10 Fri 22:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Network diagrams</title>
@@ -343,11 +343,11 @@ Or, if you have a list where each vector is a trial and a drug, then you can do 
 library(dplyr)
 library(tidyr)
 
-trials &lt;- list(c(0, 0),
-	       c(0, 1),
-	       c(1, 0),
-	       c(1, 1),
-	       c(1, 2))
+trials &lt;- list(c("trial 1", 0),
+	       c("trial 1", 1),
+	       c("trial 0", 0),
+	       c("trial 0", 1),
+	       c("trial 0", 2))
 
 do.call(rbind, trials) %&gt;%
   data.frame(stringsAsFactors=FALSE) %&gt;%
@@ -397,8 +397,6 @@ graph &lt;- delete_edges(out, E(out)[crossing(co, out)])
 
 # Find number of vertices
 n &lt;- length(unique(c(edges$to, edges$from)))
-
-layout &lt;- layout_as_star(graph)
 
 # Appearance
 V(graph)$size &lt;- 20

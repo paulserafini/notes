@@ -43,11 +43,11 @@ Or, if you have a list where each vector is a trial and a drug, then you can do 
   library(dplyr)
   library(tidyr)
 
-  trials <- list(c(0, 0),
-                 c(0, 1),
-                 c(1, 0),
-                 c(1, 1),
-                 c(1, 2))
+  trials <- list(c("trial 1", 0),
+                 c("trial 1", 1),
+                 c("trial 0", 0),
+                 c("trial 0", 1),
+                 c("trial 0", 2))
 
   do.call(rbind, trials) %>%
     data.frame(stringsAsFactors=FALSE) %>%
