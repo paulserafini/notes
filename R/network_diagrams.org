@@ -92,8 +92,6 @@ And then you can plot it:
   # Find number of vertices
   n <- length(unique(c(edges$to, edges$from)))
   
-  layout <- layout_as_star(graph)
-
   # Appearance
   V(graph)$size <- 20
   V(graph)$color <- 1:n
@@ -108,5 +106,5 @@ And then you can plot it:
   plot(graph, edge.label=weight, edge.width=weight)
 #+END_SRC
 
-#+RESULTS[6780aeaf4a4c6621fbad00f50e18d757dd62fcf7]:
+#+RESULTS[aa55fc479af0c2a9e30d01bd552b1cd4064f66fe]:
 [[file:./img/network.svg]]
