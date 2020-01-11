@@ -124,3 +124,18 @@ If you use ~sample~ on a vector without specifying a sample size then it will re
       group_by(study, drug) %>%
       summarise(change = mean[timepoint == 2] - mean[timepoint == 1])
 #+END_SRC
+* Capitalise title
+
+#+BEGIN_SRC R
+library(tools)
+capitalise <- function(string) {
+  toTitleCase(tolower(string))
+}
+#+END_SRC
+* Improve the quality of figures exported from R Markdown
+
+#+BEGIN_SRC
+```{r, dpi=300}
+plot(...)
+```
+#+END_SRC
