@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-10 Fri 22:59 -->
+<!-- 2020-01-11 Sat 07:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Network diagrams</title>
@@ -398,15 +398,30 @@ graph &lt;- delete_edges(out, E(out)[crossing(co, out)])
 # Find number of vertices
 n &lt;- length(unique(c(edges$to, edges$from)))
 
+# Adjust scale for number of vertices
+if (n &lt;= 5) {
+  V(graph)$size &lt;- 25
+  V(graph)$label.cex=1
+  E(graph)$label.cex=1
+} else if (n &gt; 5 &amp; n &lt;= 10) {
+  V(graph)$size &lt;- 20
+  V(graph)$label.cex=0.75
+  E(graph)$label.cex=0.75
+} else if (n &gt; 10 &amp; n &lt;= 20) {
+  V(graph)$size &lt;- 15
+  V(graph)$label.cex=0.5
+  E(graph)$label.cex=0.5
+}
+
 # Appearance
-V(graph)$size &lt;- 20
 V(graph)$color &lt;- 1:n
 V(graph)$frame.color &lt;- "white"
 V(graph)$label.color &lt;- "black"
 E(graph)$label.color &lt;- "black"
-V(graph)$label.cex=0.75
-E(graph)$label.cex=1
 E(graph)$weight &lt;- weight
+
+# Make the same layout each time
+set.seed(1)
 
 par(mar=c(0,0,0,0))
 plot(graph, edge.label=weight, edge.width=weight)

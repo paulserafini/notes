@@ -83,7 +83,7 @@ With your data in the proper format you can then create a list of edges and thei
 
 And then you can plot it:
 
-#+BEGIN_SRC R :session tmp :exports both :file ./img/network.svg :results output graphics :cache yes
+#+BEGIN_SRC R :session tmp :exports both :file ./img/network.svg :results output graphics
   # Identify clusters
   out <- graph_from_edgelist(as.matrix(edges), directed = F)
   co <- cluster_optimal(out, weight)
@@ -91,20 +91,35 @@ And then you can plot it:
 
   # Find number of vertices
   n <- length(unique(c(edges$to, edges$from)))
-  
+
+  # Adjust scale for number of vertices
+  if (n <= 5) {
+    V(graph)$size <- 25
+    V(graph)$label.cex=1
+    E(graph)$label.cex=1
+  } else if (n > 5 & n <= 10) {
+    V(graph)$size <- 20
+    V(graph)$label.cex=0.75
+    E(graph)$label.cex=0.75
+  } else if (n > 10 & n <= 20) {
+    V(graph)$size <- 15
+    V(graph)$label.cex=0.5
+    E(graph)$label.cex=0.5
+  }
+
   # Appearance
-  V(graph)$size <- 20
   V(graph)$color <- 1:n
   V(graph)$frame.color <- "white"
   V(graph)$label.color <- "black"
   E(graph)$label.color <- "black"
-  V(graph)$label.cex=0.75
-  E(graph)$label.cex=1
   E(graph)$weight <- weight
+  
+  # Make the same layout each time
+  set.seed(1)
 
   par(mar=c(0,0,0,0))
   plot(graph, edge.label=weight, edge.width=weight)
 #+END_SRC
 
-#+RESULTS[aa55fc479af0c2a9e30d01bd552b1cd4064f66fe]:
+#+RESULTS:
 [[file:./img/network.svg]]
