@@ -54,7 +54,7 @@ Or, if you have a list where each vector is a trial and a drug, then you can do 
     group_split(X1, keep=FALSE) %>%
     lapply(function(i) c(i$X2)) -> trials
 
-  comparisons <- lapply(trials, function(i) combinations(length(i), 2, i, repeats.allowed=FALSE))
+  comparisons <- lapply(trials, function(i) combinations(length(i), 2, i))
   comparisons <- do.call(rbind, comparisons)
 #+END_SRC
 

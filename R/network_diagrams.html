@@ -354,7 +354,7 @@ do.call(rbind, trials) %&gt;%
   group_split(X1, keep=FALSE) %&gt;%
   lapply(function(i) c(i$X2)) -&gt; trials
 
-comparisons &lt;- lapply(trials, function(i) combinations(length(i), 2, i, repeats.allowed=FALSE))
+comparisons &lt;- lapply(trials, function(i) combinations(length(i), 2, i))
 comparisons &lt;- do.call(rbind, comparisons)
 </pre>
 </div>
