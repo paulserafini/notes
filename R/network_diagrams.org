@@ -83,11 +83,8 @@ With your data in the proper format you can then create a list of edges and thei
 
 And then you can plot it:
 
-#+BEGIN_SRC R :session tmp :exports both :file ./img/network.svg :results output graphics
-  # Identify clusters
-  out <- graph_from_edgelist(as.matrix(edges), directed = F)
-  co <- cluster_optimal(out, weight)
-  graph <- delete_edges(out, E(out)[crossing(co, out)])
+#+BEGIN_SRC R :session tmp :exports both :file ./img/network.svg :results output graphics :cache yes
+  graph <- graph_from_edgelist(as.matrix(edges), directed = F)
 
   # Find number of vertices
   n <- length(unique(c(edges$to, edges$from)))
@@ -121,5 +118,5 @@ And then you can plot it:
   plot(graph, edge.label=weight, edge.width=weight)
 #+END_SRC
 
-#+RESULTS:
+#+RESULTS[a645dfb3b84a042e48767939a3fef2770d44c6cc]:
 [[file:./img/network.svg]]
