@@ -12,13 +12,14 @@ In meta-analysis you shouldn't include more than one estimate from the same stud
 The simplest way to deal with is to choose one estimate from each study, but to avoid bias this has to be done randomly.
 
 #+NAME: example-data
-| study | outcome | nc |  Nc | nt |  Nt |
-|-------+---------+----+-----+----+-----|
-|     0 |     0-1 | 80 | 221 | 16 | 175 |
-|     0 |     0-2 | 16 | 175 | 80 | 221 |
-|     0 |       1 | 89 | 138 | 46 | 208 |
-|     1 |       0 | 77 | 143 | 62 | 233 |
-|     1 |       1 | 88 | 102 | 21 | 118 |
+| study | intervention | outcome | nc |  Nc | nt |  Nt |
+|-------+--------------+---------+----+-----+----+-----|
+|     0 |            0 |     0-1 | 80 | 221 | 16 | 175 |
+|     0 |            0 |     0-2 | 16 | 175 | 80 | 221 |
+|     0 |            1 |     0-1 | 89 | 138 | 46 | 208 |
+|     0 |            1 |     0-2 | 71 | 112 | 79 | 333 |
+|     1 |            0 |       0 | 77 | 143 | 62 | 233 |
+|     1 |            1 |       1 | 88 | 102 | 21 | 118 |
 
 #+BEGIN_SRC R :var data=example-data :colnames yes :exports both
   library(tidyr)
@@ -32,18 +33,18 @@ The simplest way to deal with is to choose one estimate from each study, but to 
   data$category <- apply(Vectorize(grepl, "pattern")(regex, data$outcome), 1,
                          function(i) name[which(i)[1]])
 
-  # Randomly choose one outcome from each category
+  ## Randomly choose one outcome from each category
   data %>%
     group_by(study, category) %>%
-    sample_n(1) %>%
-    select(-outcome, outcome=category)
+    filter(outcome == sample(unique(outcome), 1)) %>%
+    ungroup()
 #+END_SRC
 
 #+NAME: result
 #+RESULTS:
-| study | nc |  Nc | nt |  Nt | outcome |
-|-------+----+-----+----+-----+---------|
-|     0 | 16 | 175 | 80 | 221 |       0 |
-|     0 | 89 | 138 | 46 | 208 |       1 |
-|     1 | 77 | 143 | 62 | 233 |       0 |
-|     1 | 88 | 102 | 21 | 118 |       1 |
+| study | intervention | outcome | nc |  Nc | nt |  Nt | category |
+|-------+--------------+---------+----+-----+----+-----+----------|
+|     0 |            0 |     0-1 | 80 | 221 | 16 | 175 |        0 |
+|     0 |            1 |     0-1 | 89 | 138 | 46 | 208 |        0 |
+|     1 |            0 |       0 | 77 | 143 | 62 | 233 |        0 |
+|     1 |            1 |       1 | 88 | 102 | 21 | 118 |        1 |

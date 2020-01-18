@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-01 Wed 12:51 -->
+<!-- 2020-01-18 Sat 10:48 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Randomly choose an outcome</title>
@@ -161,6 +161,19 @@
   .footdef  { margin-bottom: 1em; }
   .figure { padding: 1em; }
   .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
   .inlinetask {
     padding: 10px;
     border: 2px solid gray;
@@ -248,10 +261,12 @@ In meta-analysis you shouldn't include more than one estimate from the same stud
 The simplest way to deal with is to choose one estimate from each study, but to avoid bias this has to be done randomly.
 </p>
 
-<table id="org490aea1" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgce8c425" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
+<col  class="org-right" />
+
 <col  class="org-right" />
 
 <col  class="org-right" />
@@ -267,6 +282,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 <thead>
 <tr>
 <th scope="col" class="org-right">study</th>
+<th scope="col" class="org-right">intervention</th>
 <th scope="col" class="org-right">outcome</th>
 <th scope="col" class="org-right">nc</th>
 <th scope="col" class="org-right">Nc</th>
@@ -277,6 +293,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 <tbody>
 <tr>
 <td class="org-right">0</td>
+<td class="org-right">0</td>
 <td class="org-right">0-1</td>
 <td class="org-right">80</td>
 <td class="org-right">221</td>
@@ -285,6 +302,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 </tr>
 
 <tr>
+<td class="org-right">0</td>
 <td class="org-right">0</td>
 <td class="org-right">0-2</td>
 <td class="org-right">16</td>
@@ -296,6 +314,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 <tr>
 <td class="org-right">0</td>
 <td class="org-right">1</td>
+<td class="org-right">0-1</td>
 <td class="org-right">89</td>
 <td class="org-right">138</td>
 <td class="org-right">46</td>
@@ -303,7 +322,18 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 </tr>
 
 <tr>
+<td class="org-right">0</td>
 <td class="org-right">1</td>
+<td class="org-right">0-2</td>
+<td class="org-right">71</td>
+<td class="org-right">112</td>
+<td class="org-right">79</td>
+<td class="org-right">333</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
 <td class="org-right">0</td>
 <td class="org-right">77</td>
 <td class="org-right">143</td>
@@ -312,6 +342,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 </tr>
 
 <tr>
+<td class="org-right">1</td>
 <td class="org-right">1</td>
 <td class="org-right">1</td>
 <td class="org-right">88</td>
@@ -334,18 +365,22 @@ name &lt;- c("0", "1")
 data$category &lt;- apply(Vectorize(grepl, "pattern")(regex, data$outcome), 1,
 		       function(i) name[which(i)[1]])
 
-# Randomly choose one outcome from each category
+## Randomly choose one outcome from each category
 data %&gt;%
   group_by(study, category) %&gt;%
-  sample_n(1) %&gt;%
-  select(-outcome, outcome=category)
+  filter(outcome == sample(unique(outcome), 1)) %&gt;%
+  ungroup()
 </pre>
 </div>
 
-<table id="org36beade" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgec30142" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
+<col  class="org-right" />
+
+<col  class="org-right" />
+
 <col  class="org-right" />
 
 <col  class="org-right" />
@@ -361,16 +396,20 @@ data %&gt;%
 <thead>
 <tr>
 <th scope="col" class="org-right">study</th>
+<th scope="col" class="org-right">intervention</th>
+<th scope="col" class="org-right">outcome</th>
 <th scope="col" class="org-right">nc</th>
 <th scope="col" class="org-right">Nc</th>
 <th scope="col" class="org-right">nt</th>
 <th scope="col" class="org-right">Nt</th>
-<th scope="col" class="org-right">outcome</th>
+<th scope="col" class="org-right">category</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-right">0-1</td>
 <td class="org-right">80</td>
 <td class="org-right">221</td>
 <td class="org-right">16</td>
@@ -380,15 +419,19 @@ data %&gt;%
 
 <tr>
 <td class="org-right">0</td>
+<td class="org-right">1</td>
+<td class="org-right">0-1</td>
 <td class="org-right">89</td>
 <td class="org-right">138</td>
 <td class="org-right">46</td>
 <td class="org-right">208</td>
-<td class="org-right">1</td>
+<td class="org-right">0</td>
 </tr>
 
 <tr>
 <td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
 <td class="org-right">77</td>
 <td class="org-right">143</td>
 <td class="org-right">62</td>
@@ -397,6 +440,8 @@ data %&gt;%
 </tr>
 
 <tr>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
 <td class="org-right">1</td>
 <td class="org-right">88</td>
 <td class="org-right">102</td>
