@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-18 Sat 10:48 -->
+<!-- 2020-01-18 Sat 13:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Randomly choose an outcome</title>
@@ -261,7 +261,7 @@ In meta-analysis you shouldn't include more than one estimate from the same stud
 The simplest way to deal with is to choose one estimate from each study, but to avoid bias this has to be done randomly.
 </p>
 
-<table id="orgce8c425" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org227731c" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -334,7 +334,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 <tr>
 <td class="org-right">1</td>
 <td class="org-right">0</td>
-<td class="org-right">0</td>
+<td class="org-right">1</td>
 <td class="org-right">77</td>
 <td class="org-right">143</td>
 <td class="org-right">62</td>
@@ -344,7 +344,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 <tr>
 <td class="org-right">1</td>
 <td class="org-right">1</td>
-<td class="org-right">1</td>
+<td class="org-right">2</td>
 <td class="org-right">88</td>
 <td class="org-right">102</td>
 <td class="org-right">21</td>
@@ -358,12 +358,21 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 library(dplyr)
 library(meta)
 
+coalesce &lt;- function(...) {
+  Reduce(function(x, y) ifelse(is.na(x), y, x),
+	 list(...))
+}
+
 # Categorise each outcome
 # https://stackoverflow.com/a/34703058
-regex &lt;- c("^0", "^1")
-name &lt;- c("0", "1")
+regex &lt;- c("^0")
+name &lt;- c("0")
 data$category &lt;- apply(Vectorize(grepl, "pattern")(regex, data$outcome), 1,
 		       function(i) name[which(i)[1]])
+
+# Values not matched by a regex above are replaced with NA
+# This gets them back
+data$category &lt;- coalesce(data$category, data$outcome)
 
 ## Randomly choose one outcome from each category
 data %&gt;%
@@ -373,7 +382,7 @@ data %&gt;%
 </pre>
 </div>
 
-<table id="orgec30142" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgfde3678" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -409,45 +418,45 @@ data %&gt;%
 <tr>
 <td class="org-right">0</td>
 <td class="org-right">0</td>
-<td class="org-right">0-1</td>
-<td class="org-right">80</td>
-<td class="org-right">221</td>
+<td class="org-right">0-2</td>
 <td class="org-right">16</td>
 <td class="org-right">175</td>
+<td class="org-right">80</td>
+<td class="org-right">221</td>
 <td class="org-right">0</td>
 </tr>
 
 <tr>
 <td class="org-right">0</td>
 <td class="org-right">1</td>
-<td class="org-right">0-1</td>
-<td class="org-right">89</td>
-<td class="org-right">138</td>
-<td class="org-right">46</td>
-<td class="org-right">208</td>
+<td class="org-right">0-2</td>
+<td class="org-right">71</td>
+<td class="org-right">112</td>
+<td class="org-right">79</td>
+<td class="org-right">333</td>
 <td class="org-right">0</td>
 </tr>
 
 <tr>
 <td class="org-right">1</td>
 <td class="org-right">0</td>
-<td class="org-right">0</td>
+<td class="org-right">1</td>
 <td class="org-right">77</td>
 <td class="org-right">143</td>
 <td class="org-right">62</td>
 <td class="org-right">233</td>
-<td class="org-right">0</td>
+<td class="org-right">1</td>
 </tr>
 
 <tr>
 <td class="org-right">1</td>
 <td class="org-right">1</td>
-<td class="org-right">1</td>
+<td class="org-right">2</td>
 <td class="org-right">88</td>
 <td class="org-right">102</td>
 <td class="org-right">21</td>
 <td class="org-right">118</td>
-<td class="org-right">1</td>
+<td class="org-right">2</td>
 </tr>
 </tbody>
 </table>

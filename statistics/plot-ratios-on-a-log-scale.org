@@ -118,7 +118,7 @@ When the $\psi$ are plotted on a linear scale, the estimate from the first trial
 #+RESULTS:
 [[file:./img/linear2.svg]]
 
-However, when they are plotted on a log scale they are approximately accurate:
+However, when they are plotted on a log scale they seem similarly accurate:
 
 #+BEGIN_SRC R :exports results :file ./img/log2.svg :width 5 :height 3 :results output graphics
   a1 <- 100
