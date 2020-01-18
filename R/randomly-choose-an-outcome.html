@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-18 Sat 13:21 -->
+<!-- 2020-01-18 Sat 15:15 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Randomly choose an outcome</title>
@@ -261,7 +261,7 @@ In meta-analysis you shouldn't include more than one estimate from the same stud
 The simplest way to deal with is to choose one estimate from each study, but to avoid bias this has to be done randomly.
 </p>
 
-<table id="org227731c" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgb3fbe20" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -363,16 +363,17 @@ coalesce &lt;- function(...) {
 	 list(...))
 }
 
-# Categorise each outcome
 # https://stackoverflow.com/a/34703058
-regex &lt;- c("^0")
-name &lt;- c("0")
-data$category &lt;- apply(Vectorize(grepl, "pattern")(regex, data$outcome), 1,
-		       function(i) name[which(i)[1]])
+recode &lt;- function(data, regex, code) {
+  recoded &lt;- apply(Vectorize(grepl, "pattern")(regex, data), 1,
+		   function(i) code[which(i)[1]])
+  coalesce(recoded, data)
+}
 
-# Values not matched by a regex above are replaced with NA
-# This gets them back
-data$category &lt;- coalesce(data$category, data$outcome)
+# Categorise each outcome
+regex &lt;- c("^0")
+code &lt;- c("0")
+data$category &lt;- recode(data$outcome, regex, code)
 
 ## Randomly choose one outcome from each category
 data %&gt;%
@@ -382,7 +383,7 @@ data %&gt;%
 </pre>
 </div>
 
-<table id="orgfde3678" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org29f9e0f" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>

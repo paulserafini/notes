@@ -31,16 +31,17 @@ The simplest way to deal with is to choose one estimate from each study, but to 
            list(...))
   }
 
-  # Categorise each outcome
   # https://stackoverflow.com/a/34703058
-  regex <- c("^0")
-  name <- c("0")
-  data$category <- apply(Vectorize(grepl, "pattern")(regex, data$outcome), 1,
-                         function(i) name[which(i)[1]])
+  recode <- function(data, regex, code) {
+    recoded <- apply(Vectorize(grepl, "pattern")(regex, data), 1,
+                     function(i) code[which(i)[1]])
+    coalesce(recoded, data)
+  }
 
-  # Values not matched by a regex above are replaced with NA
-  # This gets them back
-  data$category <- coalesce(data$category, data$outcome)
+  # Categorise each outcome
+  regex <- c("^0")
+  code <- c("0")
+  data$category <- recode(data$outcome, regex, code)
 
   ## Randomly choose one outcome from each category
   data %>%
@@ -53,7 +54,7 @@ The simplest way to deal with is to choose one estimate from each study, but to 
 #+RESULTS:
 | study | intervention | outcome | nc |  Nc | nt |  Nt | category |
 |-------+--------------+---------+----+-----+----+-----+----------|
-|     0 |            0 |     0-1 | 80 | 221 | 16 | 175 |        0 |
-|     0 |            1 |     0-1 | 89 | 138 | 46 | 208 |        0 |
+|     0 |            0 |     0-2 | 16 | 175 | 80 | 221 |        0 |
+|     0 |            1 |     0-2 | 71 | 112 | 79 | 333 |        0 |
 |     1 |            0 |       1 | 77 | 143 | 62 | 233 |        1 |
 |     1 |            1 |       2 | 88 | 102 | 21 | 118 |        2 |

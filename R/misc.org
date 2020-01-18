@@ -149,6 +149,7 @@ plot(...)
 This function is called ~coalesce~ in SQL:
 
 #+BEGIN_SRC R :exports both :results output
+  ## https://stackoverflow.com/a/32203924
   coalesce <- function(...) {
     Reduce(function(x, y) ifelse(is.na(x), y, x),
            list(...))
@@ -159,4 +160,25 @@ This function is called ~coalesce~ in SQL:
   x3 <- c(NA, NA, 2)
 
   coalesce(x1, x2, x3)
+#+END_SRC
+* Recode a variable
+
+#+BEGIN_SRC R :exports both :results output
+  coalesce <- function(...) {
+    Reduce(function(x, y) ifelse(is.na(x), y, x),
+           list(...))
+  }
+
+  ## https://stackoverflow.com/a/34703058
+  recode <- function(data, regex, code) {
+    recoded <- apply(Vectorize(grepl, "pattern")(regex, data), 1,
+                     function(i) code[which(i)[1]])
+    coalesce(recoded, data)
+  }
+
+  regex <- c("^0", "^1")
+  code <- c("0", "1", "2")
+  data <- c("0-1", "0-2", "1-1", "1-2", "2")
+
+  recode(data, regex, code)
 #+END_SRC
