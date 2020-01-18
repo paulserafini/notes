@@ -1,0 +1,83 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Pooling repeated measures
+
+Suppose you have the following data set and you want to take the mean for each trial-intervention pair.
+
+#+NAME: example-data
+| trial | intervention | timepoint | value |   sd |   n |
+|-------+--------------+-----------+-------+------+-----|
+|     0 | treatment    |         0 | -0.63 | 0.08 | 476 |
+|     0 | treatment    |         1 |  0.18 | 0.24 | 452 |
+|     0 | treatment    |         2 |  0.37 | 0.12 | 440 |
+|     0 | control      |         0 | -0.84 | 0.42 | 442 |
+|     0 | control      |         1 |   1.6 | 0.19 | 373 |
+|     1 | treatment    |         0 |  0.33 |  0.2 | 169 |
+|     1 | treatment    |         1 | -0.82 | 0.39 | 131 |
+|     1 | control      |         0 |  0.49 | 0.36 | 220 |
+|     1 | control      |         1 |  0.74 | 0.32 | 170 |
+|     2 | treatment    |         0 |  0.58 | 0.38 | 139 |
+|     2 | treatment    |         1 | -0.31 | 0.36 |  98 |
+|     2 | control      |         0 |  1.51 | 0.21 | 271 |
+|     2 | control      |         1 |  0.39 |  0.2 | 266 |
+|     3 | control      |         0 |  0.45 | 0.21 | 200 |
+|     3 | treatment    |         0 |  0.98 | 0.42 | 400 |
+
+Since these are repeated measures you can't simply take the mean of ~value~ and the mean of ~sd~ squared, as you could for independent groups.
+The following function will calculate the the standard deviation of the mean of any number of correlated variables:
+
+#+BEGIN_SRC R :session tmp
+  meanSD <- function(sd, cor=0.8) {
+    # sd is a vector of standard deviations of variables X1 ... Xn
+    # cor is the presumed correlation between each pair of variables
+    # returns the stanardard deviation of mean(X1 ... Xn)
+
+    n <- length(sd)
+    if (n == 1) return(sd)
+
+    # Add up the variances
+    sum <- sum(sd^2)
+
+    # Calculate the covariances
+    pairs <- expand.grid(sd, 2)
+    cov_equations <- cbind(pairs, cor)
+    cov <- apply(cov_equations, 1, prod)
+
+    sqrt((sum + sum(2 * cov))/n)
+  }
+#+END_SRC
+
+By default, ~meanSD~ makes the (conservative) assumption that the correlation between each timepoint is 0.8.
+This will produce a large standard error, so if you know the correlation either from research or from the literature you can pass a different value (or a vector of different values).
+
+We can apply this function to our dataset like this:
+
+#+BEGIN_SRC R :session tmp :var data=example-data :colnames yes :exports both
+  library(dplyr)
+
+  data %>%
+    group_by(trial, intervention) %>%
+    summarise(value = mean(value),
+              n = min(n),
+              sd = meanSD(sd)) %>%
+    mutate(se = sd / sqrt(n)) %>%
+    mutate_at(vars(value, sd, se), round, 2)
+#+END_SRC
+
+#+RESULTS:
+| trial | intervention | value |   n |   sd |   se |
+|-------+--------------+-------+-----+------+------|
+|     0 | control      |  0.38 | 373 |  1.1 | 0.06 |
+|     0 | treatment    | -0.03 | 440 | 0.74 | 0.04 |
+|     1 | control      |  0.62 | 170 | 1.16 | 0.09 |
+|     1 | treatment    | -0.24 | 131 | 1.08 | 0.09 |
+|     2 | control      |  0.95 | 266 | 0.88 | 0.05 |
+|     2 | treatment    |  0.13 |  98 | 1.21 | 0.12 |
+|     3 | control      |  0.45 | 200 | 0.21 | 0.01 |
+|     3 | treatment    |  0.98 | 400 | 0.42 | 0.02 |

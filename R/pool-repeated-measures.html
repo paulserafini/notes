@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-18 Sat 09:51 -->
+<!-- 2020-01-18 Sat 09:50 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>R</title>
+<title>Pooling repeated measures</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,19 +255,324 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">R</h1>
-<ul class="org-ul">
-<li><a href="./math-notation-in-R.html">Use mathematical notation in R</a></li>
-<li><a href="./median_polish.html">Median Polish</a></li>
-<li><a href="./misc.html">Miscellaneous</a></li>
-<li><a href="./network_diagrams.html">Network diagrams</a></li>
-<li><a href="./pool-repeated-measures.html">Pooling repeated measures</a></li>
-<li><a href="./randomly-choose-an-outcome.html">Randomly choose an outcome</a></li>
-<li><a href="./round-multiple-variables.html">Round multiple variables simultaneously</a></li>
-<li><a href="./summarise_metanalyses.html">Create a summary table of meta-analyses on several outcomes</a></li>
-<li><a href="./text-with-an-arrow-above-it.html">Draw text with an arrow above it</a></li>
-<li><a href="./winbugs.html">Convert data into WinBUGS format</a></li>
-</ul>
+<h1 class="title">Pooling repeated measures</h1>
+<p>
+Suppose you have the following data set and you want to take the mean for each trial-intervention pair.
+</p>
+
+<table id="org2af937c" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">trial</th>
+<th scope="col" class="org-left">intervention</th>
+<th scope="col" class="org-right">timepoint</th>
+<th scope="col" class="org-right">value</th>
+<th scope="col" class="org-right">sd</th>
+<th scope="col" class="org-right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">treatment</td>
+<td class="org-right">0</td>
+<td class="org-right">-0.63</td>
+<td class="org-right">0.08</td>
+<td class="org-right">476</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">treatment</td>
+<td class="org-right">1</td>
+<td class="org-right">0.18</td>
+<td class="org-right">0.24</td>
+<td class="org-right">452</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">treatment</td>
+<td class="org-right">2</td>
+<td class="org-right">0.37</td>
+<td class="org-right">0.12</td>
+<td class="org-right">440</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">control</td>
+<td class="org-right">0</td>
+<td class="org-right">-0.84</td>
+<td class="org-right">0.42</td>
+<td class="org-right">442</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">control</td>
+<td class="org-right">1</td>
+<td class="org-right">1.6</td>
+<td class="org-right">0.19</td>
+<td class="org-right">373</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">treatment</td>
+<td class="org-right">0</td>
+<td class="org-right">0.33</td>
+<td class="org-right">0.2</td>
+<td class="org-right">169</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">treatment</td>
+<td class="org-right">1</td>
+<td class="org-right">-0.82</td>
+<td class="org-right">0.39</td>
+<td class="org-right">131</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">control</td>
+<td class="org-right">0</td>
+<td class="org-right">0.49</td>
+<td class="org-right">0.36</td>
+<td class="org-right">220</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">control</td>
+<td class="org-right">1</td>
+<td class="org-right">0.74</td>
+<td class="org-right">0.32</td>
+<td class="org-right">170</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">treatment</td>
+<td class="org-right">0</td>
+<td class="org-right">0.58</td>
+<td class="org-right">0.38</td>
+<td class="org-right">139</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">treatment</td>
+<td class="org-right">1</td>
+<td class="org-right">-0.31</td>
+<td class="org-right">0.36</td>
+<td class="org-right">98</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">control</td>
+<td class="org-right">0</td>
+<td class="org-right">1.51</td>
+<td class="org-right">0.21</td>
+<td class="org-right">271</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">control</td>
+<td class="org-right">1</td>
+<td class="org-right">0.39</td>
+<td class="org-right">0.2</td>
+<td class="org-right">266</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">control</td>
+<td class="org-right">0</td>
+<td class="org-right">0.45</td>
+<td class="org-right">0.21</td>
+<td class="org-right">200</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">treatment</td>
+<td class="org-right">0</td>
+<td class="org-right">0.98</td>
+<td class="org-right">0.42</td>
+<td class="org-right">400</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Since these are repeated measures you can't simply take the mean of <code>value</code> and the mean of <code>sd</code> squared, as you could for independent groups.
+The following function will calculate the the standard deviation of the mean of any number of correlated variables:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">meanSD &lt;- function(sd, cor=0.8) {
+  # sd is a vector of standard deviations of variables X1 ... Xn
+  # cor is the presumed correlation between each pair of variables
+  # returns the stanardard deviation of mean(X1 ... Xn)
+
+  n &lt;- length(sd)
+  if (n == 1) return(sd)
+
+  # Add up the variances
+  sum &lt;- sum(sd^2)
+
+  # Calculate the covariances
+  pairs &lt;- expand.grid(sd, 2)
+  cov_equations &lt;- cbind(pairs, cor)
+  cov &lt;- apply(cov_equations, 1, prod)
+
+  sqrt((sum + sum(2 * cov))/n)
+}
+</pre>
+</div>
+
+<p>
+By default, <code>meanSD</code> makes the (conservative) assumption that the correlation between each timepoint is 0.8.
+This will produce a large standard error, so if you know the correlation either from research or from the literature you can pass a different value (or a vector of different values).
+</p>
+
+<p>
+We can apply this function to our dataset like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">library(dplyr)
+
+data %&gt;%
+  group_by(trial, intervention) %&gt;%
+  summarise(value = mean(value),
+	    n = min(n),
+	    sd = meanSD(sd)) %&gt;%
+  mutate(se = sd / sqrt(n)) %&gt;%
+  mutate_at(vars(value, sd, se), round, 2)
+</pre>
+</div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">trial</th>
+<th scope="col" class="org-left">intervention</th>
+<th scope="col" class="org-right">value</th>
+<th scope="col" class="org-right">n</th>
+<th scope="col" class="org-right">sd</th>
+<th scope="col" class="org-right">se</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">control</td>
+<td class="org-right">0.38</td>
+<td class="org-right">373</td>
+<td class="org-right">1.04</td>
+<td class="org-right">0.05</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-left">treatment</td>
+<td class="org-right">-0.03</td>
+<td class="org-right">440</td>
+<td class="org-right">0.7</td>
+<td class="org-right">0.03</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">control</td>
+<td class="org-right">0.62</td>
+<td class="org-right">170</td>
+<td class="org-right">1.1</td>
+<td class="org-right">0.08</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">treatment</td>
+<td class="org-right">-0.24</td>
+<td class="org-right">131</td>
+<td class="org-right">1.02</td>
+<td class="org-right">0.09</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">control</td>
+<td class="org-right">0.95</td>
+<td class="org-right">266</td>
+<td class="org-right">0.84</td>
+<td class="org-right">0.05</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">treatment</td>
+<td class="org-right">0.13</td>
+<td class="org-right">98</td>
+<td class="org-right">1.15</td>
+<td class="org-right">0.12</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">control</td>
+<td class="org-right">0.45</td>
+<td class="org-right">200</td>
+<td class="org-right">0.21</td>
+<td class="org-right">0.01</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">treatment</td>
+<td class="org-right">0.98</td>
+<td class="org-right">400</td>
+<td class="org-right">0.42</td>
+<td class="org-right">0.02</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>
