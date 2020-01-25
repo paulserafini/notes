@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-25 Sat 00:22 -->
+<!-- 2020-01-25 Sat 10:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Create forest plots tables in ggplot</title>
+<title>Create beautiful forest plot tables in ggplot</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,7 +255,7 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">Create forest plots tables in ggplot</h1>
+<h1 class="title">Create beautiful forest plot tables in ggplot</h1>
 <div class="org-src-container">
 <pre class="src src-R">library(dplyr)
 library(ggplot2)
@@ -271,35 +271,43 @@ theme.text &lt;- theme(
   axis.ticks = element_blank(), 
   axis.title.x = element_blank(), 
   axis.title.y = element_blank(), 
+  axis.ticks.length.y = unit(0, "mm"),
   legend.position = "none", 
   panel.background = element_rect(fill = "transparent"), 
   panel.border = element_blank(), 
   axis.line.x = element_line(colour="white"),
-  panel.margin = unit(c(-0.1,-0.1,-0.1,-0.1), "mm"), 
-  plot.margin = unit(c(5,0,5,0.01), "mm"),
+  plot.margin = unit(c(5, 0, 5, 0), "mm"),
   panel.grid.major = element_blank(), 
   panel.grid.minor = element_blank())
 
-theme.plot &lt;- theme.text +
-  theme(axis.text.x = element_text(colour="black"),
-	axis.ticks.x = element_line(),
-	axis.line.x = element_line(colour="black"))
+theme.plot &lt;- theme(
+  axis.line = element_blank(), 
+  axis.text.y = element_blank(),
+  axis.ticks.y = element_blank(), 
+  axis.line.x = element_line(colour="black"),
+  axis.title.x = element_blank(), 
+  axis.title.y = element_blank(), 
+  axis.ticks.length.y = unit(0, "mm"),
+  legend.position = "none", 
+  panel.background = element_rect(fill = "transparent"), 
+  panel.border = element_blank(), 
+  plot.margin = unit(c(5, 0, 5, 0), "mm"),
+  panel.grid.major = element_blank(), 
+  panel.grid.minor = element_blank())
 
 
-set.seed(1)
-
-n &lt;- 20
-MD &lt;- rnorm(n)
-UL &lt;- MD + abs(rnorm(n))
-LL &lt;- MD - (UL - MD)
-study &lt;- paste("Study", 1:n)
-ID &lt;- n:1
-estimate &lt;- sprintf("%.02f [%.02f, %.02f]", MD, LL, UL)
-p &lt;- round(runif(n), 2)
-data &lt;- data.frame(ID, study, MD, LL, UL, estimate, p, stringsAsFactors = FALSE)
-
+## Example data
+ID &lt;- 6:1
+study &lt;- c("Trial", "Trial 1", "Trial 2", "Trial 3", "Trial 4", "Summary")
+MD &lt;- c(NA, 0.18, -0.84, 1.60, 0.33, 0.2)
+LL &lt;- c(NA, -0.60, -0.91, -0.39, -0.29, 0.1)
+UL &lt;- c(NA, 0.97, -0.76, 3.58, 0.95, 0.3)
+estimate &lt;- c("MD [95% CI]", "0.18 [-0.60, 0.97]", "-0.84 [-0.91, -0.76]", "1.60 [-0.39, 3.58]", "0.33 [-0.29, 0.95]", "0.1 [0.2, 0.3]")
+P &lt;- c("P", 0.71, 0.40, 0.33, 0.76, 0.01)
+summary &lt;- c(TRUE, FALSE, FALSE, FALSE, FALSE, TRUE)
+data &lt;- data.frame(ID, study, MD, LL, UL, estimate, P, summary, stringsAsFactors = FALSE)
 data %&gt;%
-  gather(key, value, study, estimate, p) -&gt; data
+  gather(key, value, study, estimate, P) -&gt; data
 
 
 ## Left plot
@@ -308,18 +316,14 @@ data %&gt;%
   filter(key == "study") %&gt;%
   mutate_at(vars(ID, key, value), factor) -&gt; left.data
 
-left.header &lt;- data.frame(y=length(levels(left.data$ID)) + 1,
-		   x=as.numeric(unique(left.data$key)),
-		   lab=c("Trial"))
-
 left.data %&gt;%
   ggplot() +
     geom_rect(aes(xmin=min(as.numeric(key))-0.1, xmax=Inf,
 		  ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
-	      fill=ifelse(as.numeric(left.data$ID) %% 2 == 0, "#f1f1f2", "white")) +
+	      fill=ifelse(as.numeric(left.data$ID) %% 2 == 0 | left.data$summary, "white", "#f1f1f2")) +
     geom_text(aes(x = key, y = ID, label = value),
+	      fontface=ifelse(left.data$summary, "bold", "plain"),
 	      size = 2.5, hjust=0, vjust=0.5) +
-    geom_text(data=left.header, aes(x, y, label=lab, fontface="bold"), hjust=0, vjust=1, size=2.5) +
     scale_x_discrete(expand=c(0, 2)) +
     scale_y_discrete() +
     theme.text -&gt; left.panel
@@ -331,29 +335,21 @@ data %&gt;%
   filter(key != "study") %&gt;%
   mutate_at(vars(ID, key, value), factor) -&gt; right.data
 
-right.header &lt;- data.frame(y=length(levels(right.data$ID)) + 1,
-			   x=as.numeric(unique(right.data$key)),
-			   lab=c("MD [95% CI]", "P"))
-
 right.data %&gt;%
   filter(key != "study") %&gt;%
   ggplot() +
   geom_rect(aes(xmin=-Inf, xmax=max(as.numeric(key))+0.1,
 		ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
-	    fill=ifelse(as.numeric(right.data$ID) %% 2 == 0, "#f1f1f2", "white")) +
+	    fill=ifelse(as.numeric(right.data$ID) %% 2 == 0 | right.data$summary, "white", "#f1f1f2")) +
   geom_text(aes(x = key, y = ID, label = value),
+	    fontface=ifelse(right.data$summary, "bold", "plain"),
 	    size = 2.5, hjust=1) +
-  geom_text(data=right.header,aes(x, y, label=lab, fontface="bold"), hjust=1, vjust=1, size=2.5) +
   scale_x_discrete(expand=c(0, 2)) +
   scale_y_discrete() +
   theme.text -&gt; right.panel
 
 
 ## Middle/forest plot
-
-middle.header &lt;- data.frame(y=length(levels(right.data$ID)) + 1,
-			   x=mean(right.data$MD),
-			   lab=c(""))
 
 data %&gt;%
   mutate_at(vars(ID, key, value), factor) -&gt; middle.data
@@ -362,17 +358,20 @@ middle.data %&gt;%
   ggplot() +
   geom_rect(aes(xmin=-Inf, xmax=Inf,
 		ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
-	    fill=ifelse(as.numeric(data$ID) %% 2 == 0, "#f1f1f2", "white")) +
-  geom_point(aes(y = ID, x = MD), size=3, shape=15) +
-  geom_errorbarh(aes(y = ID, xmax = UL, xmin = LL), height = 0.15) +
+	    fill=ifelse(as.numeric(middle.data$ID) %% 2 == 0 | middle.data$summary, "white", "#f1f1f2")) +
+  geom_point(aes(y = ID, x = MD), size=3, shape=15, na.rm=TRUE, color="pink") +
+  geom_errorbarh(aes(y = ID, xmax = UL, xmin = LL), height = 0.15, na.rm=TRUE) +
   geom_vline(aes(xintercept=0),linetype=2, size=0.5) +
-  geom_text(data=middle.header,aes(x, y, label=lab, fontface="bold"), hjust=0, vjust=1, size=2.5) +
+  coord_cartesian(xlim = c(-1, 3)) +
   scale_y_discrete() +
+  #scale_x_continuous(expand = c(0, 0)) + # cuts off numbers
   theme.plot -&gt; middle.panel
 
+# https://stackoverflow.com/questions/50201928/avoid-ggplot2-to-partially-cut-axis-text
+# https://stackoverflow.com/questions/57805967/how-to-avoid-expand-c0-0-to-crop-off-axis-ticks-labels
 
 ## Put it all together
-grid.arrange(left.panel, middle.panel, right.panel, nrow = 1, widths = c(0.5, 0.75, 0.75))
+grid.arrange(left.panel, middle.panel, right.panel, nrow = 1, widths = c(0.5, 1, 0.75))
 </pre>
 </div>
 
