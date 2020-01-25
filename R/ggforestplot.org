@@ -1,0 +1,133 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Create forest plots tables in ggplot
+
+# https://i.stack.imgur.com/jy4Ar.png
+
+#+BEGIN_SRC R :session tmp :exports both :file ./img/ggforestplot.svg :results output graphics :width 8 :height 5 :cache yes
+  library(dplyr)
+  library(ggplot2)
+  library(tidyr)
+  library(gridExtra)
+  library(grid)
+
+
+  theme.text <- theme(
+    axis.line = element_blank(), 
+    axis.text.x = element_text(colour="white"), 
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(), 
+    axis.title.x = element_blank(), 
+    axis.title.y = element_blank(), 
+    legend.position = "none", 
+    panel.background = element_rect(fill = "transparent"), 
+    panel.border = element_blank(), 
+    axis.line.x = element_line(colour="white"),
+    panel.margin = unit(c(-0.1,-0.1,-0.1,-0.1), "mm"), 
+    plot.margin = unit(c(5,0,5,0.01), "mm"),
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank())
+
+  theme.plot <- theme.text +
+    theme(axis.text.x = element_text(colour="black"),
+          axis.ticks.x = element_line(),
+          axis.line.x = element_line(colour="black"))
+
+
+  set.seed(1)
+
+  n <- 20
+  MD <- rnorm(n)
+  UL <- MD + abs(rnorm(n))
+  LL <- MD - (UL - MD)
+  study <- paste("Study", 1:n)
+  ID <- n:1
+  estimate <- sprintf("%.02f [%.02f, %.02f]", MD, LL, UL)
+  p <- round(runif(n), 2)
+  data <- data.frame(ID, study, MD, LL, UL, estimate, p, stringsAsFactors = FALSE)
+
+  data %>%
+    gather(key, value, study, estimate, p) -> data
+
+
+  ## Left plot
+
+  data %>%
+    filter(key == "study") %>%
+    mutate_at(vars(ID, key, value), factor) -> left.data
+
+  left.header <- data.frame(y=length(levels(left.data$ID)) + 1,
+                     x=as.numeric(unique(left.data$key)),
+                     lab=c("Trial"))
+
+  left.data %>%
+    ggplot() +
+      geom_rect(aes(xmin=min(as.numeric(key))-0.1, xmax=Inf,
+                    ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
+                fill=ifelse(as.numeric(left.data$ID) %% 2 == 0, "#f1f1f2", "white")) +
+      geom_text(aes(x = key, y = ID, label = value),
+                size = 2.5, hjust=0, vjust=0.5) +
+      geom_text(data=left.header, aes(x, y, label=lab, fontface="bold"), hjust=0, vjust=1, size=2.5) +
+      scale_x_discrete(expand=c(0, 2)) +
+      scale_y_discrete() +
+      theme.text -> left.panel
+
+
+  ## Right plot
+
+  data %>%
+    filter(key != "study") %>%
+    mutate_at(vars(ID, key, value), factor) -> right.data
+
+  right.header <- data.frame(y=length(levels(right.data$ID)) + 1,
+                             x=as.numeric(unique(right.data$key)),
+                             lab=c("MD [95% CI]", "P"))
+
+  right.data %>%
+    filter(key != "study") %>%
+    ggplot() +
+    geom_rect(aes(xmin=-Inf, xmax=max(as.numeric(key))+0.1,
+                  ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
+              fill=ifelse(as.numeric(right.data$ID) %% 2 == 0, "#f1f1f2", "white")) +
+    geom_text(aes(x = key, y = ID, label = value),
+              size = 2.5, hjust=1) +
+    geom_text(data=right.header,aes(x, y, label=lab, fontface="bold"), hjust=1, vjust=1, size=2.5) +
+    scale_x_discrete(expand=c(0, 2)) +
+    scale_y_discrete() +
+    theme.text -> right.panel
+
+
+  ## Middle/forest plot
+
+  middle.header <- data.frame(y=length(levels(right.data$ID)) + 1,
+                             x=mean(right.data$MD),
+                             lab=c(""))
+
+  data %>%
+    mutate_at(vars(ID, key, value), factor) -> middle.data
+
+  middle.data %>%
+    ggplot() +
+    geom_rect(aes(xmin=-Inf, xmax=Inf,
+                  ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
+              fill=ifelse(as.numeric(data$ID) %% 2 == 0, "#f1f1f2", "white")) +
+    geom_point(aes(y = ID, x = MD), size=3, shape=15) +
+    geom_errorbarh(aes(y = ID, xmax = UL, xmin = LL), height = 0.15) +
+    geom_vline(aes(xintercept=0),linetype=2, size=0.5) +
+    geom_text(data=middle.header,aes(x, y, label=lab, fontface="bold"), hjust=0, vjust=1, size=2.5) +
+    scale_y_discrete() +
+    theme.plot -> middle.panel
+
+
+  ## Put it all together
+  grid.arrange(left.panel, middle.panel, right.panel, nrow = 1, widths = c(0.5, 0.75, 0.75))
+#+END_SRC
+
+#+RESULTS[5b1d7f8b26f2ce277b1ac1d0eea69360187ebf85]:
+[[file:./img/ggforestplot.svg]]
