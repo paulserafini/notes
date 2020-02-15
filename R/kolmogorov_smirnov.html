@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-02-15 Sat 12:50 -->
+<!-- 2020-02-15 Sat 12:51 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>R</title>
+<title>Kolmogorov-Smirnov</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,23 +255,56 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">R</h1>
-<ul class="org-ul">
-<li><a href="./annotate-forest-plots.html">Annotate forest plots</a></li>
-<li><a href="./ggforestplot.html">Create beautiful forest plot tables in ggplot</a></li>
-<li><a href="./kolmogorov_smirnov.html">Kolmogorov-Smirnov</a></li>
-<li><a href="./math-notation-in-R.html">Use mathematical notation in R</a></li>
-<li><a href="./median_polish.html">Median Polish</a></li>
-<li><a href="./misc.html">Miscellaneous</a></li>
-<li><a href="./network_diagrams.html">Network diagrams</a></li>
-<li><a href="./pool-repeated-measures.html">Pooling repeated measures</a></li>
-<li><a href="./randomly-choose-an-outcome.html">Randomly choose an outcome</a></li>
-<li><a href="./round-multiple-variables.html">Round multiple variables simultaneously</a></li>
-<li><a href="./summarise_metanalyses.html">Create a summary table of meta-analyses on several outcomes</a></li>
-<li><a href="./symmetric-log-xticks.html">Generate symmetric, whole number/fraction axis ticks</a></li>
-<li><a href="./text-with-an-arrow-above-it.html">Draw text with an arrow above it</a></li>
-<li><a href="./winbugs.html">Convert data into WinBUGS format</a></li>
-</ul>
+<h1 class="title">Kolmogorov-Smirnov</h1>
+<p>
+The Kolmogorov-Smirnov is a procedure for comparing an observed distribution to a theoretical distribution
+I can be called from R using the <code>ks.test</code> function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">set.seed(1)
+
+p &lt;- runif(1000)
+data &lt;- data.frame(p)
+
+ks.test(data, y="pnorm")
+</pre>
+</div>
+
+<p>
+The procedure of the Kolmogorov-Smirnov test is to compare the percentile for each score in the dataset against the expected percentile if it were drawn from the theoretical distribution.
+The Kolmogorov-Smirnov D is the largest discrepency between the observed and predicted percentile.
+We can also make this comparison visually:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">library(ggplot2)
+
+ed &lt;- ecdf(data$p)
+maxdiffidx &lt;- which.max(abs(ed(data$p) - punif(data$p)))
+maxdiffat &lt;- data$p[maxdiffidx]
+
+ggplot(data, aes(p)) +
+  stat_ecdf() + 
+  stat_function(fun = punif, colour = "red") +
+  geom_vline(xintercept=maxdiffat, lty=2) +
+  theme_bw() + 
+  theme(panel.grid = element_blank(),
+	panel.grid.major.y = element_line(size=.1, color="grey90"),
+	strip.background = element_rect(fill="white"))
+</pre>
+</div>
+
+
+<div class="figure">
+<p><object type="image/svg+xml" data="img/kolmogorov_smirnov.svg" class="org-svg">
+Sorry, your browser does not support SVG.</object>
+</p>
+</div>
+
+<p>
+In this graph the black line is the observed data, the red line is the theoretical uniform distribution, and the dashed line indicates the largest discrepency between the two.
+</p>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>
