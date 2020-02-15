@@ -6,7 +6,7 @@
 #+END_SRC
 #+CALL: add-bars()
 
-#+TITLE: Kolmogorov-Smirnov
+#+TITLE: Plot the Kolmogorov-Smirnov
 
 The Kolmogorov-Smirnov is a procedure for comparing an observed distribution to a theoretical distribution
 I can be called from R using the ~ks.test~ function:
