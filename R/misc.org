@@ -182,3 +182,46 @@ This function is called ~coalesce~ in SQL:
 
   recode(data, regex, code)
 #+END_SRC
+* View grob objects in a grid image
+
+# https://www.stat.auckland.ac.nz/~paul/useR2015-grid/grid-slides.html#1
+
+#+BEGIN_SRC R
+library(grid)
+grid.ls()
+#+END_SRC
+* Suppress scientific notation
+
+#+BEGIN_SRC R
+options(scipen = 999)
+#+END_SRC
+
+* Reorder a cross-table
+
+#+BEGIN_SRC R
+  reorderCrosstable <- function(X1, j) {
+    ## X1 is a cross-table
+    ## j is the index of a column
+    ## Returns the same cross-table with the jth treatment in the first position
+
+    X2 <- X1
+
+    for (i in (j-1):1) {
+      X1[,i] <- X2[,i+1]
+      colnames(X1)[i] <- colnames(X2)[i+1]
+      X1[,i+1] <- X2[,i]
+      colnames(X1)[i+1] <- colnames(X2)[i]
+      X2 <- X1
+    }
+
+    for (i in (j-1):1) {
+      X1[i,] <- X2[i+1,]
+      rownames(X1)[i] <- rownames(X2)[i+1]
+      X1[i+1,] <- X2[i,]
+      rownames(X1)[i+1] <- rownames(X2)[i]
+      X2 <- X1
+    }
+
+    return(X1)
+  }
+#+END_SRC
