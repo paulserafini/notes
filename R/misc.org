@@ -212,9 +212,7 @@ options(scipen = 999)
       X1[,i+1] <- X2[,i]
       colnames(X1)[i+1] <- colnames(X2)[i]
       X2 <- X1
-    }
 
-    for (i in (j-1):1) {
       X1[i,] <- X2[i+1,]
       rownames(X1)[i] <- rownames(X2)[i+1]
       X1[i+1,] <- X2[i,]
@@ -222,6 +220,6 @@ options(scipen = 999)
       X2 <- X1
     }
 
-    return(X1)
+    X1
   }
 #+END_SRC
