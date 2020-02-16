@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-19 Sun 00:00 -->
+<!-- 2020-02-15 Sat 16:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Annotate forest plots</title>
+<title>Add an interpretation label to the output of the forestplot function</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,7 +255,7 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">Annotate forest plots</h1>
+<h1 class="title">Add an interpretation label to the output of the forestplot function</h1>
 <div class="org-src-container">
 <pre class="src src-R">library(grid)
 library(forestplot)
@@ -285,6 +285,7 @@ forestplot(text,
 	   ci.vertices.height = 0.05,
 	   is.summary=c(TRUE,rep(FALSE, 9)),
 	   clip=c(-1.5, 1.5),
+	   align = c("l", "r"),
 	   xticks=seq(-1.5, 1.5, by=0.5))
 
 downViewport("forestplot_margins")

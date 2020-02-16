@@ -6,9 +6,9 @@
 #+END_SRC
 #+CALL: add-bars()
 
-#+TITLE: Annotate forest plots
+#+TITLE: Add an interpretation label to the output of the forestplot function
 
-#+BEGIN_SRC R :exports both :file img/forest1.svg :results graphics
+#+BEGIN_SRC R :exports both :file img/forest1.svg :results graphics :cache yes
   library(grid)
   library(forestplot)
 
@@ -37,6 +37,7 @@
              ci.vertices.height = 0.05,
              is.summary=c(TRUE,rep(FALSE, 9)),
              clip=c(-1.5, 1.5),
+             align = c("l", "r"),
              xticks=seq(-1.5, 1.5, by=0.5))
 
   downViewport("forestplot_margins")
@@ -47,5 +48,5 @@
   grid.text("Favors placebo", x=0.54, y=-0.09, just=c("left", "center"))
 #+END_SRC
 
-#+RESULTS:
+#+RESULTS[6e397e7b30441bf838b8877f45b9da0398fc44ad]:
 [[file:img/forest1.svg]]
