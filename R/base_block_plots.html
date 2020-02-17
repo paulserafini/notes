@@ -6,7 +6,7 @@
 <!-- 2020-02-16 Sun 16:23 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>R</title>
+<title>Block graphics in base R</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,25 +255,52 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">R</h1>
-<ul class="org-ul">
-<li><a href="./annotate-forestplot.html">Add an interpretation label to the output of the forestplot function</a></li>
-<li><a href="./base_block_plots.html">Block graphics in base R</a></li>
-<li><a href="./draw_distributions.html">Draw and label theoretical distributions</a></li>
-<li><a href="./ggforestplot.html">Create beautiful forest plot tables in ggplot</a></li>
-<li><a href="./kolmogorov_smirnov.html">Plot the Kolmogorov-Smirnov</a></li>
-<li><a href="./math-notation-in-R.html">Use mathematical notation in R</a></li>
-<li><a href="./median_polish.html">Median Polish</a></li>
-<li><a href="./misc.html">Miscellaneous</a></li>
-<li><a href="./network_diagrams.html">Network diagrams</a></li>
-<li><a href="./pool-repeated-measures.html">Pooling repeated measures</a></li>
-<li><a href="./randomly-choose-an-outcome.html">Randomly choose an outcome</a></li>
-<li><a href="./round-multiple-variables.html">Round multiple variables simultaneously</a></li>
-<li><a href="./summarise_metanalyses.html">Create a summary table of meta-analyses on several outcomes</a></li>
-<li><a href="./symmetric-log-xticks.html">Generate symmetric, whole number/fraction axis ticks</a></li>
-<li><a href="./text-with-an-arrow-above-it.html">Draw text with an arrow above it</a></li>
-<li><a href="./winbugs.html">Convert data into WinBUGS format</a></li>
-</ul>
+<h1 class="title">Block graphics in base R</h1>
+<div class="org-src-container">
+<pre class="src src-R">library(reshape2) # For the tips dataset
+
+par(mfrow=c(2,4))
+par(cex = 0.6)
+par(mar = c(0, 0, 0, 0), oma = c(5, 5, 3, 3))
+par(tcl = -0.35)
+par(mgp = c(2, 0.6, 0))
+
+days &lt;- unique(tips$day)
+sexes &lt;- unique(tips$sex)
+for (i in 1:length(sexes)) {
+  for (j in 1:length(days)) {
+
+    currdata &lt;- tips[tips$day == days[j] &amp; tips$sex == sexes[i],]
+
+    plot(currdata$total_bill,
+	 xaxt = 'n',
+	 yaxt = 'n',
+	 ylab = '',
+	 xlab = '',
+	 xlim=c(0, 50),
+	 currdata$tip / currdata$total_bill,
+	 main='',
+	 #main=if (i == 1) days[j] else "",
+	 ylim=c(0,0.7), las=1)
+    if (j == 1) axis(2)
+    if (i == length(sexes)) axis(1)
+    if (j == length(days)) mtext(sexes[i], side = 4, line=1, font=1)
+    if (i == 1) mtext(days[j], side = 3, line=0.5, font=1)
+    grid()
+  }
+}
+
+mtext("Total Bill", side = 1, outer = TRUE, line=3, font=2)
+mtext("Tip", side = 2, outer = TRUE, line=3, font=2)
+</pre>
+</div>
+
+
+<div class="figure">
+<p><object type="image/svg+xml" data="./img/base_block_plot.svg" class="org-svg">
+Sorry, your browser does not support SVG.</object>
+</p>
+</div>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>

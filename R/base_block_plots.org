@@ -1,0 +1,55 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Block graphics in base R
+
+#+BEGIN_SRC R :session tmp :exports both :file ./img/base_block_plot.svg :results output graphics :cache yes
+  library(reshape2) # For the tips dataset
+
+  par(mfrow=c(2,4))
+  par(cex = 0.6)
+  par(mar = c(0, 0, 0, 0), oma = c(5, 5, 3, 3))
+  par(tcl = -0.35)
+  par(mgp = c(2, 0.6, 0))
+
+  days <- unique(tips$day)
+  sexes <- unique(tips$sex)
+  for (i in 1:length(sexes)) {
+    for (j in 1:length(days)) {
+
+      currdata <- tips[tips$day == days[j] & tips$sex == sexes[i],]
+
+      plot(currdata$total_bill,
+           xaxt = 'n',
+           yaxt = 'n',
+           ylab = '',
+           xlab = '',
+           xlim=c(0, 50),
+           currdata$tip / currdata$total_bill,
+           main='',
+           #main=if (i == 1) days[j] else "",
+           ylim=c(0,0.7), las=1)
+      if (j == 1) axis(2)
+      if (i == length(sexes)) axis(1)
+      if (j == length(days)) mtext(sexes[i], side = 4, line=1, font=1)
+      if (i == 1) mtext(days[j], side = 3, line=0.5, font=1)
+      grid()
+    }
+  }
+
+  mtext("Total Bill", side = 1, outer = TRUE, line=3, font=2)
+  mtext("Tip", side = 2, outer = TRUE, line=3, font=2)
+#+END_SRC
+
+#+RESULTS[a08d915bf65660edea99a5df68cf4e269bbdb539]:
+[[file:./img/base_block_plot.svg]]
+
+
+* Footnotes
+
+[fn:1] https://www.worldcat.org/title/exploratory-data-analysis/oclc/614720136
