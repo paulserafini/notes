@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-02-16 Sun 16:23 -->
+<!-- 2020-02-16 Sun 18:45 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Block graphics in base R</title>
@@ -278,7 +278,7 @@ for (i in 1:length(sexes)) {
 	 ylab = '',
 	 xlab = '',
 	 xlim=c(0, 50),
-	 currdata$tip / currdata$total_bill,
+	 currdata$tip / currdata$total_bill * 100,
 	 main='',
 	 #main=if (i == 1) days[j] else "",
 	 ylim=c(0,0.7), las=1)
@@ -291,7 +291,7 @@ for (i in 1:length(sexes)) {
 }
 
 mtext("Total Bill", side = 1, outer = TRUE, line=3, font=2)
-mtext("Tip", side = 2, outer = TRUE, line=3, font=2)
+mtext("Tip (%)", side = 2, outer = TRUE, line=3, font=2)
 </pre>
 </div>
 

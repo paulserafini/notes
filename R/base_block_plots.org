@@ -8,7 +8,7 @@
 
 #+TITLE: Block graphics in base R
 
-#+BEGIN_SRC R :session tmp :exports both :file ./img/base_block_plot.svg :results output graphics :cache yes
+#+BEGIN_SRC R :session tmp :exports both :file ./img/base_block_plot.svg :results output graphics
   library(reshape2) # For the tips dataset
 
   par(mfrow=c(2,4))
@@ -30,10 +30,11 @@
            ylab = '',
            xlab = '',
            xlim=c(0, 50),
-           currdata$tip / currdata$total_bill,
+           (currdata$tip / currdata$total_bill) * 100,
            main='',
            #main=if (i == 1) days[j] else "",
-           ylim=c(0,0.7), las=1)
+           ylim=c(0,70),
+           las=1)
       if (j == 1) axis(2)
       if (i == length(sexes)) axis(1)
       if (j == length(days)) mtext(sexes[i], side = 4, line=1, font=1)
@@ -42,11 +43,11 @@
     }
   }
 
-  mtext("Total Bill", side = 1, outer = TRUE, line=3, font=2)
-  mtext("Tip", side = 2, outer = TRUE, line=3, font=2)
+  mtext("Total Bill ($)", side = 1, outer = TRUE, line=3, font=2)
+  mtext("Tip (%)", side = 2, outer = TRUE, line=3, font=2)
 #+END_SRC
 
-#+RESULTS[a08d915bf65660edea99a5df68cf4e269bbdb539]:
+#+RESULTS[675e3130c06497eeea24a317766ec0c99933f394]:
 [[file:./img/base_block_plot.svg]]
 
 
