@@ -22,9 +22,9 @@ I can be called from R using the ~ks.test~ function:
 
 The Kolmogorov-Smirnov compares the percentile for each observed score against the expected percentile if it were drawn from the theoretical distribution.
 The Kolmogorov-Smirnov D is the largest discrepency between the observed and predicted percentile.
-We can also make this comparison visually:
+We can also make this comparison visually using a Q-Q plot:
 
-#+BEGIN_SRC R :session tmp :exports both :file img/kolmogorov_smirnov.svg :results graphics :cache yes
+#+BEGIN_SRC R :session tmp :exports both :file img/ggplot_kolmogorov_smirnov.svg :results graphics :cache yes
   library(ggplot2)
 
   ed <- ecdf(data$p)
@@ -36,6 +36,8 @@ We can also make this comparison visually:
     stat_function(fun = punif, colour = "red") +
     geom_vline(xintercept=maxdiffat, lty=2) +
     theme_bw() + 
+    xlab("Theoretical") +
+    ylab("Empirical") +
     theme(panel.grid = element_blank(),
           panel.grid.major.y = element_line(size=.1, color="grey90"),
           strip.background = element_rect(fill="white"))
@@ -44,5 +46,17 @@ We can also make this comparison visually:
 #+RESULTS[18e39c505afcb6a70b3992f2e3ee687f75366702]:
 [[file:img/kolmogorov_smirnov.svg]]
 
-In this graph the black line is the observed data, the red line is the theoretical uniform distribution, and the dashed line indicates the largest discrepency between the two.
+Here's the same plot using base R graphics:
 
+#+BEGIN_SRC R :session tmp :exports both :file img/base_kolmogorov_smirnov.svg :results graphics :cache yes
+  par(lwd = 2)
+  n <- length(data$p)
+
+  # https://stats.stackexchange.com/a/230235
+  plot(sort(data$p), 1:n/(n+1), type="l", xlab="Theoretical", ylab="Empirical")
+  abline(0, 1, col="red")
+  abline(v = maxdiffat, lty=3)
+#+END_SRC
+
+#+RESULTS[dd439c8e8406df083284d37d4cacd81c97d0681c]:
+[[file:img/base_kolmogorov_smirnov.svg]]
