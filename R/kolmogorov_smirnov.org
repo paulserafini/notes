@@ -54,8 +54,9 @@ Here's the same plot using base R graphics:
 
   # https://stats.stackexchange.com/a/230235
   plot(sort(data$p), 1:n/(n+1), type="l", xlab="Theoretical", ylab="Empirical")
-  abline(0, 1, col="red")
   abline(v = maxdiffat, lty=3)
+  clip(0,1, 0, 1)
+  abline(0, 1, col="red")
 #+END_SRC
 
 #+RESULTS[dd439c8e8406df083284d37d4cacd81c97d0681c]:
