@@ -13,11 +13,11 @@
     exp(seq(log(i^-n), log(i^n), length.out = n*2+1))
   }
 
+
   findLogTicks <- function(LL, UL) {
     min <- 10000
     for (i in 1:10) {
       for (n in 2:4) {
-        #diff <- (max(c(1/LL, UL)) - max(iseq(i, n)))^2
         diff <- max(iseq(i, n)) - max(c(1/LL, UL))
         if (diff > 0 & diff < min) {
           min <- diff
@@ -30,7 +30,12 @@
     end <- length(label)
     label[1:(start-1)] <- sprintf("1/%s", rev(label[(start+1):end]))
     names(ticks) <- label
-    ticks
+
+    if (length(ticks) == 9) {
+       ticks[seq(1, length(ticks), by=2)]
+    } else {
+       ticks
+    }
   }
 #+END_SRC
 
