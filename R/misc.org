@@ -250,3 +250,40 @@ options(scipen = 999)
   vec <- sample(c("a", "b", "c", "d", "e"), 5, replace=TRUE)
   sapply(unique(vec), function(i) as.numeric(i == vec))
 #+END_SRC
+* Represent a matrix/df as row number, column number and value triplets
+
+#+BEGIN_SRC R
+  cellCoordinates <- function(mat) {
+
+    if (is.data.frame(mat)) {
+      elements <- Reduce("c", c(mat))
+    } else if (is.matrix(mat)) {
+      elements <- c(mat)
+    } else {
+      return(elements)
+    }
+
+    data.frame(row = rep(1:nrow(mat), ncol(mat)),
+               col = rep(1:ncol(mat), each=nrow(mat)),
+               label = elements)
+  }
+#+END_SRC
+
+* Expand matrix or data frame into pairs of rows
+
+#+BEGIN_SRC R
+  dat1 <- cbind(ID = 1:5,
+                X1 = c("A", "B", "C", "D", "E"),
+                X2 = c("α", "β", "γ", "δ", "ε"))
+
+  pairRows <- function(dat1, ID) {
+    dat1 <- as.data.frame(dat1)
+    combos<-combn(dat1[[ID]], 2)
+    dat2 <- data.frame(ID.1=combos[1,], ID.2=combos[2,])
+    for (i in 2:ncol(dat)) {
+      dat2[paste0(colnames(dat1)[i], ".1")] <- dat1[combos[1,], i]
+      dat2[paste0(colnames(dat1)[i], ".2")] <- dat1[combos[2,], i]
+    }
+    dat2
+  }
+#+END_SRC
