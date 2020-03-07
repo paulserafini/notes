@@ -280,7 +280,7 @@ options(scipen = 999)
     dat1 <- as.data.frame(dat1)
     combos<-combn(dat1[[ID]], 2)
     dat2 <- data.frame(ID.1=combos[1,], ID.2=combos[2,])
-    for (i in 2:ncol(dat)) {
+    for (i in 2:ncol(dat1)) {
       dat2[paste0(colnames(dat1)[i], ".1")] <- dat1[combos[1,], i]
       dat2[paste0(colnames(dat1)[i], ".2")] <- dat1[combos[2,], i]
     }
