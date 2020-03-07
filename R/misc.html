@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-03-07 Sat 11:20 -->
+<!-- 2020-03-07 Sat 14:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Miscellaneous</title>
@@ -260,34 +260,34 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgf130c8d">1. Output an R object as code</a></li>
-<li><a href="#org3c83eed">2. Apply a function to several columns of a data frame</a></li>
-<li><a href="#org0b9617e">3. rbind a list of vectors into a matrix</a></li>
-<li><a href="#org0ca98bb">4. Check whether a matrix is symmetric along the diagonal</a></li>
-<li><a href="#org936c6e1">5. Sample from a discrete distribution</a></li>
-<li><a href="#org9f3b356">6. Increase the size of all text in ggplot</a></li>
-<li><a href="#org645700a">7. Shuffle a vector</a></li>
-<li><a href="#orgb5db76c">8. Return indices of the elements in a vector which match some criterion</a></li>
-<li><a href="#orge7d922b">9. Apply a function to each element of a matrix</a></li>
-<li><a href="#org63ecfd8">10. Calculate change scores in dplyr</a></li>
-<li><a href="#org31e626d">11. Capitalise title</a></li>
-<li><a href="#org83cb091">12. Improve the quality of figures exported from R Markdown</a></li>
-<li><a href="#orge6121ba">13. Collect non-NA values from two or more vectors</a></li>
-<li><a href="#org62f0c6a">14. Recode a variable</a></li>
-<li><a href="#org6e72ec8">15. View grob objects in a grid image</a></li>
-<li><a href="#org02dbeba">16. Suppress scientific notation</a></li>
-<li><a href="#org4b944f3">17. Reorder a cross-table</a></li>
-<li><a href="#orge2d34b8">18. Renumber a vector with a skipped number</a></li>
-<li><a href="#org2ca0f69">19. Remove rows with missing data</a></li>
-<li><a href="#orgbfaf3a5">20. Represent values in a vector as a matrix of 1s and 0s</a></li>
-<li><a href="#orgcdfd7f6">21. Represent a matrix/df as row number, column number and value triplets</a></li>
-<li><a href="#orga3264b7">22. Expand matrix or data frame into pairs of rows</a></li>
+<li><a href="#org276afce">1. Output an R object as code</a></li>
+<li><a href="#orga2a7930">2. Apply a function to several columns of a data frame</a></li>
+<li><a href="#org8ea47d4">3. rbind a list of vectors into a matrix</a></li>
+<li><a href="#org11048ca">4. Check whether a matrix is symmetric along the diagonal</a></li>
+<li><a href="#org154d3c6">5. Sample from a discrete distribution</a></li>
+<li><a href="#org8f0ad4e">6. Increase the size of all text in ggplot</a></li>
+<li><a href="#org7db7b2a">7. Shuffle a vector</a></li>
+<li><a href="#orgf21cc9b">8. Return indices of the elements in a vector which match some criterion</a></li>
+<li><a href="#org5ed9073">9. Apply a function to each element of a matrix</a></li>
+<li><a href="#org0408ad1">10. Calculate change scores in dplyr</a></li>
+<li><a href="#org4120580">11. Capitalise title</a></li>
+<li><a href="#org4afdc64">12. Improve the quality of figures exported from R Markdown</a></li>
+<li><a href="#orgc8b526f">13. Collect non-NA values from two or more vectors</a></li>
+<li><a href="#org6f6730a">14. Recode a variable</a></li>
+<li><a href="#org30fa862">15. View grob objects in a grid image</a></li>
+<li><a href="#org83e0a7b">16. Suppress scientific notation</a></li>
+<li><a href="#org31d5453">17. Reorder a cross-table</a></li>
+<li><a href="#org8c515f5">18. Renumber a vector with a skipped number</a></li>
+<li><a href="#orgc0c88ee">19. Remove rows with missing data</a></li>
+<li><a href="#orgcbdaa05">20. Represent values in a vector as a matrix of 1s and 0s</a></li>
+<li><a href="#org58fdcc7">21. Represent a matrix/df as row number, column number and value triplets</a></li>
+<li><a href="#orga1d3756">22. Expand matrix or data frame into pairs of rows</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgf130c8d" class="outline-2">
-<h2 id="orgf130c8d"><span class="section-number-2">1</span> Output an R object as code</h2>
+<div id="outline-container-org276afce" class="outline-2">
+<h2 id="org276afce"><span class="section-number-2">1</span> Output an R object as code</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 You can use <code>dput</code> to return the object to the console, or <code>dump</code> to write it to a file.
@@ -301,15 +301,15 @@ dput(X)
 
 <pre class="example">
 structure(list(X1 = 1:5, X2 = structure(1:5, .Label = c("A", 
-"B", "C", "D", "E"), class = "factor"), X3 = c(1.07894658618171, 
-0.314425847758393, -0.214687384299153, 0.656715385660009, 0.716939465560524
+"B", "C", "D", "E"), class = "factor"), X3 = c(0.877791481494384, 
+-1.1294093512523, -0.295769532448845, 0.209030253389276, -2.0291981835757
 )), class = "data.frame", row.names = c(NA, -5L))
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org3c83eed" class="outline-2">
-<h2 id="org3c83eed"><span class="section-number-2">2</span> Apply a function to several columns of a data frame</h2>
+<div id="outline-container-orga2a7930" class="outline-2">
+<h2 id="orga2a7930"><span class="section-number-2">2</span> Apply a function to several columns of a data frame</h2>
 <div class="outline-text-2" id="text-2">
 <div class="org-src-container">
 <pre class="src src-R">library(dplyr)
@@ -325,17 +325,17 @@ X %&gt;%
 
 <pre class="example">
      X1    X2    X3
-1 -0.01  0.66  0.91
-2 -1.60  0.63 -0.69
-3 -0.74  0.35  3.15
-4 -0.66  0.99  1.09
-5 -0.34 -0.12  0.48
+1  1.43 -1.01 -2.43
+2 -0.32 -0.63  2.40
+3 -0.34  1.31  0.86
+4  1.11  0.06  1.64
+5 -0.45 -0.32  1.52
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org0b9617e" class="outline-2">
-<h2 id="org0b9617e"><span class="section-number-2">3</span> rbind a list of vectors into a matrix</h2>
+<div id="outline-container-org8ea47d4" class="outline-2">
+<h2 id="org8ea47d4"><span class="section-number-2">3</span> rbind a list of vectors into a matrix</h2>
 <div class="outline-text-2" id="text-3">
 <div class="org-src-container">
 <pre class="src src-R">X1 &lt;- 1:5
@@ -356,8 +356,8 @@ do.call(rbind, X)
 </div>
 </div>
 
-<div id="outline-container-org0ca98bb" class="outline-2">
-<h2 id="org0ca98bb"><span class="section-number-2">4</span> Check whether a matrix is symmetric along the diagonal</h2>
+<div id="outline-container-org11048ca" class="outline-2">
+<h2 id="org11048ca"><span class="section-number-2">4</span> Check whether a matrix is symmetric along the diagonal</h2>
 <div class="outline-text-2" id="text-4">
 <div class="org-src-container">
 <pre class="src src-R">isSymmetric &lt;- function(X) {
@@ -378,8 +378,8 @@ isSymmetric(I)
 </pre>
 </div>
 </div>
-<div id="outline-container-org936c6e1" class="outline-2">
-<h2 id="org936c6e1"><span class="section-number-2">5</span> Sample from a discrete distribution</h2>
+<div id="outline-container-org154d3c6" class="outline-2">
+<h2 id="org154d3c6"><span class="section-number-2">5</span> Sample from a discrete distribution</h2>
 <div class="outline-text-2" id="text-5">
 <div class="org-src-container">
 <pre class="src src-R">sample(1:5, 100, replace = T, prob = c(0.1, 0.1, 0.1, 0.1, 0.6))
@@ -393,8 +393,8 @@ isSymmetric(I)
 </pre>
 </div>
 </div>
-<div id="outline-container-org9f3b356" class="outline-2">
-<h2 id="org9f3b356"><span class="section-number-2">6</span> Increase the size of all text in ggplot</h2>
+<div id="outline-container-org8f0ad4e" class="outline-2">
+<h2 id="org8f0ad4e"><span class="section-number-2">6</span> Increase the size of all text in ggplot</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Add <code>base_size = integer</code> to your theme of choice. For example:
@@ -406,8 +406,8 @@ theme_bw(base_size = 15)
 </div>
 </div>
 
-<div id="outline-container-org645700a" class="outline-2">
-<h2 id="org645700a"><span class="section-number-2">7</span> Shuffle a vector</h2>
+<div id="outline-container-org7db7b2a" class="outline-2">
+<h2 id="org7db7b2a"><span class="section-number-2">7</span> Shuffle a vector</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 If you use <code>sample</code> on a vector without specifying a sample size then it will return the same vector in a different order (probably).
@@ -419,12 +419,12 @@ If you use <code>sample</code> on a vector without specifying a sample size then
 </div>
 
 <pre class="example">
-[1]  8  2  5  1  9  3  4  7  6 10
+[1]  6 10  8  2  5  9  1  3  4  7
 </pre>
 </div>
 </div>
-<div id="outline-container-orgb5db76c" class="outline-2">
-<h2 id="orgb5db76c"><span class="section-number-2">8</span> Return indices of the elements in a vector which match some criterion</h2>
+<div id="outline-container-orgf21cc9b" class="outline-2">
+<h2 id="orgf21cc9b"><span class="section-number-2">8</span> Return indices of the elements in a vector which match some criterion</h2>
 <div class="outline-text-2" id="text-8">
 <div class="org-src-container">
 <pre class="src src-R">which(1:5 &lt; 3)
@@ -437,8 +437,8 @@ If you use <code>sample</code> on a vector without specifying a sample size then
 </div>
 </div>
 
-<div id="outline-container-orge7d922b" class="outline-2">
-<h2 id="orge7d922b"><span class="section-number-2">9</span> Apply a function to each element of a matrix</h2>
+<div id="outline-container-org5ed9073" class="outline-2">
+<h2 id="org5ed9073"><span class="section-number-2">9</span> Apply a function to each element of a matrix</h2>
 <div class="outline-text-2" id="text-9">
 <div class="org-src-container">
 <pre class="src src-R">mat &lt;- matrix(rnorm(25), 5, 5)
@@ -449,17 +449,17 @@ mat
 
 <pre class="example">
      [,1]    [,2]    [,3]    [,4]    [,5]   
-[1,] "0.00"  "-1.75" "1.22"  "0.20"  "0.98" 
-[2,] "-0.76" "-0.12" "-0.94" "0.61"  "2.12" 
-[3,] "0.88"  "2.02"  "0.13"  "2.75"  "0.22" 
-[4,] "-0.33" "0.48"  "0.33"  "-0.86" "0.36" 
-[5,] "1.34"  "-0.36" "0.62"  "0.30"  "-0.56"
+[1,] "0.91"  "0.53"  "-0.11" "1.36"  "0.08" 
+[2,] "-0.79" "0.92"  "-0.96" "0.64"  "-0.98"
+[3,] "0.48"  "-1.36" "-0.36" "-0.08" "-0.64"
+[4,] "-0.70" "-0.65" "-0.42" "0.08"  "-1.83"
+[5,] "0.97"  "1.90"  "-0.06" "0.41"  "1.23" 
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org63ecfd8" class="outline-2">
-<h2 id="org63ecfd8"><span class="section-number-2">10</span> Calculate change scores in dplyr</h2>
+<div id="outline-container-org0408ad1" class="outline-2">
+<h2 id="org0408ad1"><span class="section-number-2">10</span> Calculate change scores in dplyr</h2>
 <div class="outline-text-2" id="text-10">
 <div class="org-src-container">
 <pre class="src src-R">library(dplyr)
@@ -524,8 +524,8 @@ data %&gt;%
 </div>
 </div>
 
-<div id="outline-container-org31e626d" class="outline-2">
-<h2 id="org31e626d"><span class="section-number-2">11</span> Capitalise title</h2>
+<div id="outline-container-org4120580" class="outline-2">
+<h2 id="org4120580"><span class="section-number-2">11</span> Capitalise title</h2>
 <div class="outline-text-2" id="text-11">
 <div class="org-src-container">
 <pre class="src src-R">library(tools)
@@ -537,8 +537,8 @@ capitalise &lt;- function(string) {
 </div>
 </div>
 
-<div id="outline-container-org83cb091" class="outline-2">
-<h2 id="org83cb091"><span class="section-number-2">12</span> Improve the quality of figures exported from R Markdown</h2>
+<div id="outline-container-org4afdc64" class="outline-2">
+<h2 id="org4afdc64"><span class="section-number-2">12</span> Improve the quality of figures exported from R Markdown</h2>
 <div class="outline-text-2" id="text-12">
 <pre class="example">
 ```{r, dpi=300}
@@ -548,8 +548,8 @@ plot(...)
 </div>
 </div>
 
-<div id="outline-container-orge6121ba" class="outline-2">
-<h2 id="orge6121ba"><span class="section-number-2">13</span> Collect non-NA values from two or more vectors</h2>
+<div id="outline-container-orgc8b526f" class="outline-2">
+<h2 id="orgc8b526f"><span class="section-number-2">13</span> Collect non-NA values from two or more vectors</h2>
 <div class="outline-text-2" id="text-13">
 <p>
 This function is called <code>coalesce</code> in SQL:
@@ -576,8 +576,8 @@ coalesce(x1, x2, x3)
 </div>
 </div>
 
-<div id="outline-container-org62f0c6a" class="outline-2">
-<h2 id="org62f0c6a"><span class="section-number-2">14</span> Recode a variable</h2>
+<div id="outline-container-org6f6730a" class="outline-2">
+<h2 id="org6f6730a"><span class="section-number-2">14</span> Recode a variable</h2>
 <div class="outline-text-2" id="text-14">
 <div class="org-src-container">
 <pre class="src src-R">coalesce &lt;- function(...) {
@@ -606,8 +606,8 @@ recode(data, regex, code)
 </div>
 </div>
 
-<div id="outline-container-org6e72ec8" class="outline-2">
-<h2 id="org6e72ec8"><span class="section-number-2">15</span> View grob objects in a grid image</h2>
+<div id="outline-container-org30fa862" class="outline-2">
+<h2 id="org30fa862"><span class="section-number-2">15</span> View grob objects in a grid image</h2>
 <div class="outline-text-2" id="text-15">
 <div class="org-src-container">
 <pre class="src src-R">library(grid)
@@ -616,8 +616,8 @@ grid.ls()
 </div>
 </div>
 </div>
-<div id="outline-container-org02dbeba" class="outline-2">
-<h2 id="org02dbeba"><span class="section-number-2">16</span> Suppress scientific notation</h2>
+<div id="outline-container-org83e0a7b" class="outline-2">
+<h2 id="org83e0a7b"><span class="section-number-2">16</span> Suppress scientific notation</h2>
 <div class="outline-text-2" id="text-16">
 <div class="org-src-container">
 <pre class="src src-R">options(scipen = 999)
@@ -626,8 +626,8 @@ grid.ls()
 </div>
 </div>
 
-<div id="outline-container-org4b944f3" class="outline-2">
-<h2 id="org4b944f3"><span class="section-number-2">17</span> Reorder a cross-table</h2>
+<div id="outline-container-org31d5453" class="outline-2">
+<h2 id="org31d5453"><span class="section-number-2">17</span> Reorder a cross-table</h2>
 <div class="outline-text-2" id="text-17">
 <div class="org-src-container">
 <pre class="src src-R">reorderCrosstable &lt;- function(X1, j) {
@@ -657,8 +657,8 @@ grid.ls()
 </div>
 </div>
 </div>
-<div id="outline-container-orge2d34b8" class="outline-2">
-<h2 id="orge2d34b8"><span class="section-number-2">18</span> Renumber a vector with a skipped number</h2>
+<div id="outline-container-org8c515f5" class="outline-2">
+<h2 id="org8c515f5"><span class="section-number-2">18</span> Renumber a vector with a skipped number</h2>
 <div class="outline-text-2" id="text-18">
 <div class="org-src-container">
 <pre class="src src-R">vec &lt;- c(1, 2, 1, 3, 5, 3, 2)
@@ -667,8 +667,8 @@ as.numeric(as.factor(vec))
 </div>
 </div>
 </div>
-<div id="outline-container-org2ca0f69" class="outline-2">
-<h2 id="org2ca0f69"><span class="section-number-2">19</span> Remove rows with missing data</h2>
+<div id="outline-container-orgc0c88ee" class="outline-2">
+<h2 id="orgc0c88ee"><span class="section-number-2">19</span> Remove rows with missing data</h2>
 <div class="outline-text-2" id="text-19">
 <div class="org-src-container">
 <pre class="src src-R">## Generate two columns of data
@@ -687,8 +687,8 @@ X[complete.cases(X),]
 </div>
 </div>
 </div>
-<div id="outline-container-orgbfaf3a5" class="outline-2">
-<h2 id="orgbfaf3a5"><span class="section-number-2">20</span> Represent values in a vector as a matrix of 1s and 0s</h2>
+<div id="outline-container-orgcbdaa05" class="outline-2">
+<h2 id="orgcbdaa05"><span class="section-number-2">20</span> Represent values in a vector as a matrix of 1s and 0s</h2>
 <div class="outline-text-2" id="text-20">
 <div class="org-src-container">
 <pre class="src src-R">vec &lt;- sample(c("a", "b", "c", "d", "e"), 5, replace=TRUE)
@@ -697,8 +697,8 @@ sapply(unique(vec), function(i) as.numeric(i == vec))
 </div>
 </div>
 </div>
-<div id="outline-container-orgcdfd7f6" class="outline-2">
-<h2 id="orgcdfd7f6"><span class="section-number-2">21</span> Represent a matrix/df as row number, column number and value triplets</h2>
+<div id="outline-container-org58fdcc7" class="outline-2">
+<h2 id="org58fdcc7"><span class="section-number-2">21</span> Represent a matrix/df as row number, column number and value triplets</h2>
 <div class="outline-text-2" id="text-21">
 <div class="org-src-container">
 <pre class="src src-R">cellCoordinates &lt;- function(mat) {
@@ -720,8 +720,8 @@ sapply(unique(vec), function(i) as.numeric(i == vec))
 </div>
 </div>
 
-<div id="outline-container-orga3264b7" class="outline-2">
-<h2 id="orga3264b7"><span class="section-number-2">22</span> Expand matrix or data frame into pairs of rows</h2>
+<div id="outline-container-orga1d3756" class="outline-2">
+<h2 id="orga1d3756"><span class="section-number-2">22</span> Expand matrix or data frame into pairs of rows</h2>
 <div class="outline-text-2" id="text-22">
 <div class="org-src-container">
 <pre class="src src-R">dat1 &lt;- cbind(ID = 1:5,
@@ -730,11 +730,12 @@ sapply(unique(vec), function(i) as.numeric(i == vec))
 
 pairRows &lt;- function(dat1, ID) {
   dat1 &lt;- as.data.frame(dat1)
-  combos&lt;-combn(dat1[[ID]], 2)
-  dat2 &lt;- data.frame(ID.1=combos[1,], ID.2=combos[2,])
+  names &lt;- combn(dat1[[ID]], 2)
+  nums &lt;- combn(as.numeric(as.factor(dat1[[ID]])), 2)
+  dat2 &lt;- data.frame(ID.1=names[1,], ID.2=names[2,])
   for (i in 2:ncol(dat1)) {
-    dat2[paste0(colnames(dat1)[i], ".1")] &lt;- dat1[combos[1,], i]
-    dat2[paste0(colnames(dat1)[i], ".2")] &lt;- dat1[combos[2,], i]
+    dat2[paste0(colnames(dat1)[i], ".1")] &lt;- dat1[nums[1,], i]
+    dat2[paste0(colnames(dat1)[i], ".2")] &lt;- dat1[nums[2,], i]
   }
   dat2
 }
