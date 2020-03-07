@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-25 Sat 21:48 -->
+<!-- 2020-02-08 Sat 12:04 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Create beautiful forest plot tables in ggplot</title>
@@ -311,13 +311,16 @@ study &lt;- c("Trial", "Trial 1", "Trial 2", "Trial 3", "Trial 4", "Summary")
 MD &lt;- c(NA, 0.18, -0.84, 1.60, 0.33, 0.2)
 LL &lt;- c(NA, -0.60, -0.91, -0.39, -0.29, 0.1)
 UL &lt;- c(NA, 0.97, -0.76, 3.58, 0.95, 0.3)
+weight &lt;- UL - LL
 estimate &lt;- c("MD [95% CI]", "0.18 [-0.60, 0.97]", "-0.84 [-0.91, -0.76]", "1.60 [-0.39, 3.58]", "0.33 [-0.29, 0.95]", "0.1 [0.2, 0.3]")
 P &lt;- c("P", 0.71, 0.40, 0.33, 0.76, 0.01)
 summary &lt;- c(TRUE, FALSE, FALSE, FALSE, FALSE, TRUE)
-data &lt;- data.frame(ID, study, MD, LL, UL, estimate, P, summary, stringsAsFactors = FALSE)
+data &lt;- data.frame(ID, study, MD, LL, UL, weight, estimate, P, summary, stringsAsFactors = FALSE)
 data %&gt;%
   gather(key, value, study, estimate, P) -&gt; data
 
+# Make sure gray bar is on the first line
+j &lt;- ifelse(length(unique(data$ID)) %% 2 == 0, 0, 1)
 
 ## Left plot
 
@@ -329,7 +332,7 @@ left.data %&gt;%
   ggplot() +
     geom_rect(aes(xmin=min(as.numeric(key))-0.1, xmax=Inf,
 		  ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
-	      fill=ifelse(as.numeric(left.data$ID) %% 2 == 0 | left.data$summary, "white", "#f1f1f2")) +
+	      fill=ifelse(as.numeric(left.data$ID) %% 2 == j | left.data$summary, "white", "#f1f1f2")) +
     geom_text(aes(x = key, y = ID, label = value),
 	      fontface=ifelse(left.data$summary, "bold", "plain"),
 	      size = 2.5, hjust=0, vjust=0.5) +
@@ -349,7 +352,7 @@ right.data %&gt;%
   ggplot() +
   geom_rect(aes(xmin=-Inf, xmax=max(as.numeric(key))+0.1,
 		ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
-	    fill=ifelse(as.numeric(right.data$ID) %% 2 == 0 | right.data$summary, "white", "#f1f1f2")) +
+	    fill=ifelse(as.numeric(right.data$ID) %% 2 == j | right.data$summary, "white", "#f1f1f2")) +
   geom_text(aes(x = key, y = ID, label = value),
 	    fontface=ifelse(right.data$summary, "bold", "plain"),
 	    size = 2.5, hjust=1) +
@@ -367,14 +370,15 @@ middle.data %&gt;%
   ggplot() +
   geom_rect(aes(xmin=-Inf, xmax=Inf,
 		ymin=as.numeric(ID)-0.5, ymax=as.numeric(ID)+0.5),
-	    fill=ifelse(as.numeric(middle.data$ID) %% 2 == 0 | middle.data$summary, "white", "#f1f1f2")) +
-  geom_point(aes(y = ID, x = MD), size=3, shape=15, na.rm=TRUE, color="pink") +
+	    fill=ifelse(as.numeric(middle.data$ID) %% 2 == j | middle.data$summary, "white", "#f1f1f2")) +
+  geom_point(aes(y = ID, x = MD, size=weight), shape=15, na.rm=TRUE, color="pink") +
+  scale_size(range = c(2, 5)) +
   geom_errorbarh(aes(y = ID, xmax = UL, xmin = LL), height = 0.15, na.rm=TRUE) +
   geom_segment(aes(x=0, xend=0, y=0.5, yend=length(unique(ID))-0.5), linetype=2, size=0.05) +
-  coord_cartesian(xlim = c(-3, 3)) +
+  coord_cartesian(xlim = c(-3.6, 3.6)) +
   scale_y_discrete() +
   theme.plot +
-  base_breaks_x(seq(-3, 3, length.out=5)) -&gt; middle.panel
+  base_breaks_x(seq(-3.6, 3.6, length.out=5)) -&gt; middle.panel
 
 ## Put it all together
 grid.arrange(left.panel, middle.panel, right.panel, nrow = 1, widths = c(0.5, 0.75, 0.75))
