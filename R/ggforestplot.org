@@ -6,7 +6,7 @@
 #+END_SRC
 #+CALL: add-bars()
 
-#+TITLE: Create forest plot tables in ggplot
+#+TITLE: Create a forest plot table in ggplot
 
 # https://i.stack.imgur.com/jy4Ar.png
 
