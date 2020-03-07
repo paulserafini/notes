@@ -1,0 +1,141 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Create a forest plot table using base R graphics
+
+#+BEGIN_SRC R :session tmp :exports both :file ./img/base_forestplot.svg :results output graphics :width 5 :height 2
+  iseq <- function(i=10, n=5) {
+    exp(seq(log(i^-n), log(i^n), length.out = n*2+1))
+  }
+
+  findLogTicks <- function(LL, UL) {
+    min <- 10000
+    for (i in 1:10) {
+      for (n in 2:4) {
+        #diff <- (max(c(1/LL, UL)) - max(iseq(i, n)))^2
+        diff <- max(iseq(i, n)) - max(c(1/LL, UL))
+        if (diff > 0 & diff < min) {
+          min <- diff
+          ticks <- iseq(i, n)
+        }
+      }
+    }
+    label <- format(ticks, trim=TRUE, scientific=FALSE, drop0trailing=TRUE)
+    start <- which(label == 1)
+    end <- length(label)
+    label[1:(start-1)] <- sprintf("1/%s", rev(label[(start+1):end]))
+    names(ticks) <- label
+    if (length(ticks) == 9) {
+       ticks[seq(1, length(ticks), by=2)]
+    } else {
+       ticks
+    }
+  }
+
+  reverseNum <- function(x) {
+    sapply(x, function(i) (max(x):min(x))[i], simplify=TRUE)
+  }
+
+
+
+
+
+  set.seed(1)
+
+  Ne <- sample(100:500, 5)
+  ne <- sapply(Ne, function(i) sample(0:i, 1), simplify=TRUE)
+  Nc <- sample(100:500, 5)
+  nc <- sapply(Nc, function(i) sample(0:i, 1), simplify=TRUE)
+
+  RR <- (ne/Ne)/(nc/Nc)
+  LL <- exp(log(RR) - 1.96 * sqrt(((Ne - ne)/ne)/Ne + ((Nc - nc)/nc)/Nc))
+  UL <- exp(log(RR) + 1.96 * sqrt(((Ne - ne)/ne)/Ne + ((Nc - nc)/nc)/Nc))
+
+
+  trial <- 1:5
+
+  ticks <- findLogTicks(LL, UL)
+
+
+  # Set-up grid
+  #par(mfrow=c(1,3))
+  layout(matrix(c(1,2,3), 1, 3, byrow = TRUE), widths=c(1, 1.5, 1))
+  par(mar = c(2, 4, 2, 2))
+  par(omi = c(0.25, 0, 0, 0))
+  par(tcl = -0.35)
+
+
+  # Left table
+  left <- cbind(sprintf("%i/%i", ne, Ne), sprintf("%i/%i", nc, Nc))
+  left <- rbind(c("Treatment", "Control"), left)
+  left.reshaped <- data.frame(row = rep(1:nrow(left), ncol(left)),
+                              col = rep(1:ncol(left), each=nrow(left)),
+                              label = c(left))
+  summary <- c(1)
+  left.reshaped$summary <- ifelse(left.reshaped$row %in% summary, 1, 0)
+
+  left.reshaped$row <- reverseNum(left.reshaped$row)
+  left.reshaped$col <- reverseNum(left.reshaped$col)
+
+  plot(row ~col, data=left.reshaped, type='n',
+       ylim=c(0.5, length(trial)+1),
+       axes=FALSE, xlab='', ylab='')
+  par(xpd=NA)
+
+  for (row in unique(left.reshaped$row)) {
+      tmp <- left.reshaped[left.reshaped$row == row, ]
+      text(row ~col, labels=label, pos=4, data=tmp,
+           font=ifelse(tmp$summary == 1, 2, 1))
+  }
+
+
+  # Forest plot
+  plot(RR, trial,
+       xlim=c(min(ticks), max(ticks)),
+       ylim=c(0.5, length(trial)+1),
+       pch=5,
+       frame = FALSE,
+       yaxt='n',
+       xaxt='n',
+       xaxs="i",
+       xlab='', ylab='',
+       log='x')
+  axis(1, ticks, names(ticks), las=1)
+  arrows(LL, trial, UL, trial, length=0.05, angle=90, code=0)
+  text(1, -1.5, "Favors treatment", pos=2, cex=0.8)
+  text(1, -1.5, "Favors control", pos=4, cex=0.8)
+  par(xpd=FALSE)
+  abline(v = 1, lty=2)
+
+
+  # Right table
+  right <- cbind(sprintf("%.02f (%.02f, %.02f)", RR, LL, UL))
+  right <- rbind(c("RR (95% CI)"), right)
+  right.reshaped <- data.frame(row = rep(1:nrow(right), ncol(right)),
+                               col = rep(1:ncol(right), each=nrow(right)),
+                               label = c(right))
+  summary <- c(1)
+  right.reshaped$summary <- ifelse(right.reshaped$row %in% summary, 1, 0)
+
+  right.reshaped$row <- reverseNum(right.reshaped$row)
+  right.reshaped$col <- reverseNum(right.reshaped$col)
+
+  plot(row ~col, data=right.reshaped, type='n', axes=FALSE,
+       ylim=c(0.5, length(trial)+1),
+       xlab='', ylab='')
+  par(xpd=NA)
+
+  for (row in unique(right.reshaped$row)) {
+      tmp <- right.reshaped[right.reshaped$row == row, ]
+      text(row ~col, labels=label, pos=2, data=tmp,
+           font=ifelse(tmp$summary == 1, 2, 1))
+  }
+#+END_SRC
+
+#+RESULTS[dd3b1eeec41d146898b3a5c2986e4fb15b1cac3d]:
+[[file:./img/base_forestplot.svg]]

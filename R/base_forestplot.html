@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-03-06 Fri 23:32 -->
+<!-- 2020-03-06 Fri 23:30 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>R</title>
+<title>Create a forest plot table using base R graphics</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,26 +255,143 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">R</h1>
-<ul class="org-ul">
-<li><a href="./annotate-forestplot.html">Add an interpretation label to the output of the forestplot function</a></li>
-<li><a href="./base_block_plots.html">Block graphics in base R</a></li>
-<li><a href="./base_forestplot.html">Create a forest plot table using base R graphics</a></li>
-<li><a href="./draw_distributions.html">Draw and label theoretical distributions</a></li>
-<li><a href="./ggforestplot.html">Create beautiful forest plot tables in ggplot</a></li>
-<li><a href="./kolmogorov_smirnov.html">Plot the Kolmogorov-Smirnov</a></li>
-<li><a href="./math-notation-in-R.html">Use mathematical notation in R</a></li>
-<li><a href="./median_polish.html">Median Polish</a></li>
-<li><a href="./misc.html">Miscellaneous</a></li>
-<li><a href="./network_diagrams.html">Network diagrams</a></li>
-<li><a href="./pool-repeated-measures.html">Pooling repeated measures</a></li>
-<li><a href="./randomly-choose-an-outcome.html">Randomly choose an outcome</a></li>
-<li><a href="./round-multiple-variables.html">Round multiple variables simultaneously</a></li>
-<li><a href="./summarise_metanalyses.html">Create a summary table of meta-analyses on several outcomes</a></li>
-<li><a href="./symmetric-log-xticks.html">Generate symmetric, whole number/fraction axis ticks</a></li>
-<li><a href="./text-with-an-arrow-above-it.html">Draw text with an arrow above it</a></li>
-<li><a href="./winbugs.html">Convert data into WinBUGS format</a></li>
-</ul>
+<h1 class="title">Create a forest plot table using base R graphics</h1>
+<div class="org-src-container">
+<pre class="src src-R">iseq &lt;- function(i=10, n=5) {
+  exp(seq(log(i^-n), log(i^n), length.out = n*2+1))
+}
+
+findLogTicks &lt;- function(LL, UL) {
+  min &lt;- 10000
+  for (i in 1:10) {
+    for (n in 2:4) {
+      #diff &lt;- (max(c(1/LL, UL)) - max(iseq(i, n)))^2
+      diff &lt;- max(iseq(i, n)) - max(c(1/LL, UL))
+      if (diff &gt; 0 &amp; diff &lt; min) {
+	min &lt;- diff
+	ticks &lt;- iseq(i, n)
+      }
+    }
+  }
+  label &lt;- format(ticks, trim=TRUE, scientific=FALSE, drop0trailing=TRUE)
+  start &lt;- which(label == 1)
+  end &lt;- length(label)
+  label[1:(start-1)] &lt;- sprintf("1/%s", rev(label[(start+1):end]))
+  names(ticks) &lt;- label
+  if (length(ticks) == 9) {
+     ticks[seq(1, length(ticks), by=2)]
+  } else {
+     ticks
+  }
+}
+
+reverseNum &lt;- function(x) {
+  sapply(x, function(i) (max(x):min(x))[i], simplify=TRUE)
+}
+
+
+
+
+
+set.seed(1)
+
+Ne &lt;- sample(100:500, 5)
+ne &lt;- sapply(Ne, function(i) sample(0:i, 1), simplify=TRUE)
+Nc &lt;- sample(100:500, 5)
+nc &lt;- sapply(Nc, function(i) sample(0:i, 1), simplify=TRUE)
+
+RR &lt;- (ne/Ne)/(nc/Nc)
+LL &lt;- exp(log(RR) - 1.96 * sqrt(((Ne - ne)/ne)/Ne + ((Nc - nc)/nc)/Nc))
+UL &lt;- exp(log(RR) + 1.96 * sqrt(((Ne - ne)/ne)/Ne + ((Nc - nc)/nc)/Nc))
+
+
+trial &lt;- 1:5
+
+ticks &lt;- findLogTicks(LL, UL)
+
+
+# Set-up grid
+#par(mfrow=c(1,3))
+layout(matrix(c(1,2,3), 1, 3, byrow = TRUE), widths=c(1, 1.5, 1))
+par(mar = c(2, 4, 2, 2))
+par(omi = c(0.25, 0, 0, 0))
+par(tcl = -0.35)
+
+
+# Left table
+left &lt;- cbind(sprintf("%i/%i", ne, Ne), sprintf("%i/%i", nc, Nc))
+left &lt;- rbind(c("Treatment", "Control"), left)
+left.reshaped &lt;- data.frame(row = rep(1:nrow(left), ncol(left)),
+			    col = rep(1:ncol(left), each=nrow(left)),
+			    label = c(left))
+summary &lt;- c(1)
+left.reshaped$summary &lt;- ifelse(left.reshaped$row %in% summary, 1, 0)
+
+left.reshaped$row &lt;- reverseNum(left.reshaped$row)
+left.reshaped$col &lt;- reverseNum(left.reshaped$col)
+
+plot(row ~col, data=left.reshaped, type='n',
+     ylim=c(0.5, length(trial)+1),
+     axes=FALSE, xlab='', ylab='')
+par(xpd=NA)
+
+for (row in unique(left.reshaped$row)) {
+    tmp &lt;- left.reshaped[left.reshaped$row == row, ]
+    text(row ~col, labels=label, pos=4, data=tmp,
+	 font=ifelse(tmp$summary == 1, 2, 1))
+}
+
+
+# Forest plot
+plot(RR, trial,
+     xlim=c(min(ticks), max(ticks)),
+     ylim=c(0.5, length(trial)+1),
+     pch=5,
+     frame = FALSE,
+     yaxt='n',
+     xaxt='n',
+     xaxs="i",
+     xlab='', ylab='',
+     log='x')
+axis(1, ticks, names(ticks), las=1)
+arrows(LL, trial, UL, trial, length=0.05, angle=90, code=0)
+text(1, -1.5, "Favors treatment", pos=2, cex=0.8)
+text(1, -1.5, "Favors control", pos=4, cex=0.8)
+par(xpd=FALSE)
+abline(v = 1, lty=2)
+
+
+# Right table
+right &lt;- cbind(sprintf("%.02f (%.02f, %.02f)", RR, LL, UL))
+right &lt;- rbind(c("RR (95% CI)"), right)
+right.reshaped &lt;- data.frame(row = rep(1:nrow(right), ncol(right)),
+			     col = rep(1:ncol(right), each=nrow(right)),
+			     label = c(right))
+summary &lt;- c(1)
+right.reshaped$summary &lt;- ifelse(right.reshaped$row %in% summary, 1, 0)
+
+right.reshaped$row &lt;- reverseNum(right.reshaped$row)
+right.reshaped$col &lt;- reverseNum(right.reshaped$col)
+
+plot(row ~col, data=right.reshaped, type='n', axes=FALSE,
+     ylim=c(0.5, length(trial)+1),
+     xlab='', ylab='')
+par(xpd=NA)
+
+for (row in unique(right.reshaped$row)) {
+    tmp &lt;- right.reshaped[right.reshaped$row == row, ]
+    text(row ~col, labels=label, pos=2, data=tmp,
+	 font=ifelse(tmp$summary == 1, 2, 1))
+}
+</pre>
+</div>
+
+
+<div class="figure">
+<p><object type="image/svg+xml" data="./img/base_forestplot.svg" class="org-svg">
+Sorry, your browser does not support SVG.</object>
+</p>
+</div>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>
