@@ -1,0 +1,458 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Forest tables in pgfplots through R
+
+The $\LaTeX$ template is adapted from a Stack Overflow post.[fn:1]
+
+#+BEGIN_SRC R :exports code
+  # https://tex.stackexchange.com/questions/19346/pgfplots-plot-graph-inside-table
+  template <- "\\documentclass[border=10pt]{standalone}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage[table]{xcolor}
+  \\usepackage{tikz}
+  \\usepackage{dcolumn}
+  \\usepackage{multirow}
+  \\usepackage{booktabs}
+  \\usepackage{pgfplots}
+  \\usepackage[defaultsans]{lato}
+  \\renewcommand{\\familydefault}{\\sfdefault}
+
+  \\newcommand{\\drawDiamond}[4]{
+  \\draw[fill=black] (axis cs: #2,#4) -- (axis cs: #1,#4+0.25) -- (axis cs: #3,#4)-- (axis cs: #1,#4-0.25) -- (axis cs: #2,#4);
+  }
+
+  \\begin{document}
+
+  \\pgfplotstableread{
+  x x-max x-min y
+  %s
+  }{\\datatable}
+
+  \\pgfplotsset{/pgfplots/error bars/error bar style={semithick}}
+  \\newcommand{\\errplot}{%%
+  \\begin{tikzpicture}[trim axis left,trim axis right]
+  \\begin{semilogxaxis}[y=\\baselineskip,
+     ymax=%s,
+     ymin=%s,
+     xmin=%s,
+     xmax=%s,
+     xtick={%s},
+     xticklabels={%s},
+     clip mode=individual,
+     every tick/.style={black, semithick},
+     xtick align=outside,
+     axis y line*=middle,
+     y axis line style=dashed,
+     ytick=\\empty,
+     y post scale=1.5,
+     axis x line*=bottom]
+  \\addplot [only marks, mark=square*, mark options={scale=1.25, fill=pink}, color=black]
+    plot [error bars/.cd, x dir=both, x explicit]
+    table [y=y, x error plus=x-max, x error minus=x-min]{\\datatable};
+  %s
+  \\node[left=0.25cm] at (axis cs: 1, -1.5) {%s};
+  \\node[right=0.25cm] at (axis cs: 1, -1.5) {%s};
+  \\end{semilogxaxis}
+  \\end{tikzpicture}%%
+  }
+
+  \\renewcommand{\\arraystretch}{1.5}
+  \\rowcolors{2}{gray!25}{white}
+  \\centering                          
+  \\begin{tabular}{%s}           
+  &&&&\\\\[-2\\normalbaselineskip] %% Unfortunately necessary hack
+  %s[4ex]
+  \\end{tabular}
+
+  \\end{document}"
+
+  round0.5 <- function(x) {
+      round(x * 2, 0) / 2
+  }
+
+  findConTicks <- function(...) {
+      lim <- round0.5(max(abs(c(...))))
+      xmin <- -lim - 0.1
+      xmax <- lim + 0.1
+      ticks <- seq(xmin, xmax, length.out=5)
+      names(ticks) <- ticks
+      ticks
+  }
+
+  iseq <- function(i=10, n=5) {
+    exp(seq(log(i^-n), log(i^n), length.out = n*2+1))
+  }
+
+  findLogTicks <- function(LL, UL) {
+    min <- 10000
+    for (i in 1:10) {
+      for (n in 2:4) {
+        diff <- max(iseq(i, n)) - max(c(1/LL, UL))
+        if (diff > 0 & diff < min) {
+          min <- diff
+          ticks <- iseq(i, n)
+        }
+      }
+    }
+    label <- format(ticks, trim=TRUE, scientific=FALSE, drop0trailing=TRUE)
+    start <- which(label == 1)
+    end <- length(label)
+    #label[1:(start-1)] <- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
+    label[1:(start-1)] <- sprintf("1/%s", rev(label[(start+1):end]))
+    names(ticks) <- label
+
+    if (length(ticks) == 9) {
+       ticks[seq(1, length(ticks), by=2)]
+    } else {
+       ticks
+    }
+  }
+
+  texFP <- function(table, dat, filename="forestplot.tex", variable="b", summary=FALSE, left.label="", right.label="") {
+
+      n <- nrow(dat)
+      i <- n:1
+
+      if (variable == "b") {
+          xticks <- findLogTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+      } else if (variable == "c") {
+          xticks <- findConTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+          template <- gsub("semilogxaxis", "axis", template)
+      } else {
+          return()
+      }
+
+      ymax <- n + 0.45 - 1
+      ymin <- 0
+      xmin <- min(xticks)
+      xmax <- max(xticks)
+      xticklabels <- names(xticks)
+      xticks <- paste(xticks, collapse=",")
+      xticklabels <- paste(xticklabels, collapse=",")
+
+      bold <- rep(FALSE, nrow(table))
+      bold[summary] <- TRUE
+
+      diamondi <- setdiff(which(bold), which(is.na(dat$mean)))
+      diamonds <- sprintf("\\drawDiamond{%s}{%s}{%s}{%s}",
+                          dat[diamondi,]$mean,
+                          dat[diamondi,]$lower,
+                          dat[diamondi,]$upper,
+                          i[diamondi])
+      diamonds <- paste0(diamonds, collapse = "\n")
+
+      # Don't draw lines for summary rows
+      skip <- c(which(bold), which(is.na(dat$mean)))
+      tmp1 <- dat[-skip, ]
+      tmp2 <- i[-skip]
+      dat <- sprintf("%s %s %s %s", tmp1$mean, tmp1$upper - tmp1$mean, tmp1$mean - tmp1$lower, tmp2)
+      dat <- paste("  ", dat, collapse="\n")
+
+      # Remove non-values
+      table[is.na(table)] <- ""
+      table[table == "NA (NA, NA)"] <- ""
+
+      alignment <- c(rep("l", which(colnames(table) == "forest") - 1),
+                     "c",
+                     rep("r", length(colnames(table)) - which(colnames(table) == "forest")))
+      alignment <- paste(alignment, collapse=" ")
+
+      table[which(bold),] <- sapply(as.vector(table[which(bold),]), function(i) sprintf("\\textbf{%s}", i))
+      table <- rbind(table, "")
+      table$forest[nrow(table)] <- sprintf("\\multirow{-%d}{7cm}{\\errplot}", n)
+      table <- apply(table, 1, paste, collapse = " & ")
+      table <- paste("  ", table, "\\\\")
+      table[length(table)-1] <- paste0(table[length(table)-1], "\n   \\rowcolor{white}")
+      table <- paste(table, collapse="\n")
+
+
+      filled <- sprintf(template, dat, ymax, ymin, xmin, xmax, xticks, xticklabels, diamonds, left.label, right.label, alignment, table)
+
+      writeLines(filled, filename)
+  }
+#+END_SRC
+
+The output is a ~.tex~ file such as:
+
+#+BEGIN_SRC R :exports results :results output
+  # https://tex.stackexchange.com/questions/19346/pgfplots-plot-graph-inside-table
+  template <- "\\documentclass[border=10pt]{standalone}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage[table]{xcolor}
+  \\usepackage{tikz}
+  \\usepackage{dcolumn}
+  \\usepackage{multirow}
+  \\usepackage{booktabs}
+  \\usepackage{pgfplots}
+  \\usepackage[defaultsans]{lato}
+  \\renewcommand{\\familydefault}{\\sfdefault}
+
+  \\newcommand{\\drawDiamond}[4]{
+  \\draw[fill=black] (axis cs: #2,#4) -- (axis cs: #1,#4+0.25) -- (axis cs: #3,#4)-- (axis cs: #1,#4-0.25) -- (axis cs: #2,#4);
+  }
+
+  \\begin{document}
+
+  \\pgfplotstableread{
+  x x-max x-min y
+  %s
+  }{\\datatable}
+
+  \\pgfplotsset{/pgfplots/error bars/error bar style={semithick}}
+  \\newcommand{\\errplot}{%%
+  \\begin{tikzpicture}[trim axis left,trim axis right]
+  \\begin{semilogxaxis}[y=\\baselineskip,
+     ymax=%s,
+     ymin=%s,
+     xmin=%s,
+     xmax=%s,
+     xtick={%s},
+     xticklabels={%s},
+     clip mode=individual,
+     every tick/.style={black, semithick},
+     xtick align=outside,
+     axis y line*=middle,
+     y axis line style=dashed,
+     ytick=\\empty,
+     y post scale=1.5,
+     axis x line*=bottom]
+  \\addplot [only marks, mark=square*, mark options={scale=1.25, fill=pink}, color=black]
+    plot [error bars/.cd, x dir=both, x explicit]
+    table [y=y, x error plus=x-max, x error minus=x-min]{\\datatable};
+  %s
+  \\node[left=0.25cm] at (axis cs: 1, -1.5) {%s};
+  \\node[right=0.25cm] at (axis cs: 1, -1.5) {%s};
+  \\end{semilogxaxis}
+  \\end{tikzpicture}%%
+  }
+
+  \\renewcommand{\\arraystretch}{1.5}
+  \\rowcolors{2}{gray!25}{white}
+  \\centering                          
+  \\begin{tabular}{%s}           
+  &&&&\\\\[-2\\normalbaselineskip] %% Unfortunately necessary hack
+  %s[4ex]
+  \\end{tabular}
+
+  \\end{document}"
+
+  round0.5 <- function(x) {
+      round(x * 2, 0) / 2
+  }
+
+  findConTicks <- function(...) {
+      lim <- round0.5(max(abs(c(...))))
+      xmin <- -lim - 0.1
+      xmax <- lim + 0.1
+      ticks <- seq(xmin, xmax, length.out=5)
+      names(ticks) <- ticks
+      ticks
+  }
+
+  iseq <- function(i=10, n=5) {
+    exp(seq(log(i^-n), log(i^n), length.out = n*2+1))
+  }
+
+  findLogTicks <- function(LL, UL) {
+    min <- 10000
+    for (i in 1:10) {
+      for (n in 2:4) {
+        diff <- max(iseq(i, n)) - max(c(1/LL, UL))
+        if (diff > 0 & diff < min) {
+          min <- diff
+          ticks <- iseq(i, n)
+        }
+      }
+    }
+    label <- format(ticks, trim=TRUE, scientific=FALSE, drop0trailing=TRUE)
+    start <- which(label == 1)
+    end <- length(label)
+    #label[1:(start-1)] <- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
+    label[1:(start-1)] <- sprintf("1/%s", rev(label[(start+1):end]))
+    names(ticks) <- label
+
+    if (length(ticks) == 9) {
+       ticks[seq(1, length(ticks), by=2)]
+    } else {
+       ticks
+    }
+  }
+
+  texFP <- function(table, dat, filename="forestplot.tex", variable="b", summary=FALSE, left.label="", right.label="") {
+
+      n <- nrow(dat)
+      i <- n:1
+
+      if (variable == "b") {
+          xticks <- findLogTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+      } else if (variable == "c") {
+          xticks <- findConTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+          template <- gsub("semilogxaxis", "axis", template)
+      } else {
+          return()
+      }
+
+      ymax <- n + 0.45 - 1
+      ymin <- 0
+      xmin <- min(xticks)
+      xmax <- max(xticks)
+      xticklabels <- names(xticks)
+      xticks <- paste(xticks, collapse=",")
+      xticklabels <- paste(xticklabels, collapse=",")
+
+      bold <- rep(FALSE, nrow(table))
+      bold[summary] <- TRUE
+
+      diamondi <- setdiff(which(bold), which(is.na(dat$mean)))
+      diamonds <- sprintf("\\drawDiamond{%s}{%s}{%s}{%s}",
+                          dat[diamondi,]$mean,
+                          dat[diamondi,]$lower,
+                          dat[diamondi,]$upper,
+                          i[diamondi])
+      diamonds <- paste0(diamonds, collapse = "\n")
+
+      # Don't draw lines for summary rows
+      skip <- c(which(bold), which(is.na(dat$mean)))
+      tmp1 <- dat[-skip, ]
+      tmp2 <- i[-skip]
+      dat <- sprintf("%s %s %s %s", tmp1$mean, tmp1$upper - tmp1$mean, tmp1$mean - tmp1$lower, tmp2)
+      dat <- paste("  ", dat, collapse="\n")
+
+      # Remove non-values
+      table[is.na(table)] <- ""
+      table[table == "NA (NA, NA)"] <- ""
+
+      alignment <- c(rep("l", which(colnames(table) == "forest") - 1),
+                     "c",
+                     rep("r", length(colnames(table)) - which(colnames(table) == "forest")))
+      alignment <- paste(alignment, collapse=" ")
+
+      table[which(bold),] <- sapply(as.vector(table[which(bold),]), function(i) sprintf("\\textbf{%s}", i))
+      table <- rbind(table, "")
+      table$forest[nrow(table)] <- sprintf("\\multirow{-%d}{7cm}{\\errplot}", n)
+      table <- apply(table, 1, paste, collapse = " & ")
+      table <- paste("  ", table, "\\\\")
+      table[length(table)-1] <- paste0(table[length(table)-1], "\n   \\rowcolor{white}")
+      table <- paste(table, collapse="\n")
+
+
+      filled <- sprintf(template, dat, ymax, ymin, xmin, xmax, xticks, xticklabels, diamonds, left.label, right.label, alignment, table)
+
+      cat(filled)
+  }
+
+  study <- c("Author (Year)", "Onen (2000)", "Marcus (2001)", "Girkin (2006)", "Roberts (2009)", "Khandgave (2013)", "Bilgin (2014)", "Summary")
+  re <- c("Treatment", "58/212", "2/37", "7/667", "9/52", "4/40", "10/24", "90/1032")
+  rc <- c("Control", "38/218", "1/30", "32/6667", "7/60", "1/40", "3/24", "83/7039")
+
+  OR <- c(1.73, 1.66, 2.20, 1.58, 4.33, 5, 1.96)
+  LL <- c(1.09, 0.14, 0.97, 0.55, 0.46, 1.17, 1.37)
+  UL <- c(2.74, 19.21, 5, 4.6, 40.61, 21.46, 2.80)
+
+  weight <- c("Weight (\\%)", 65.3, 2.4, 13.5, 12.6, 2.1, 4.1, 100)
+
+  estimate <- sprintf("%.02f (%.02f, %.02f)", OR, LL, UL)
+  estimate <- c("OR (95\\% CI)", estimate)
+
+  table <- data.frame(study ,re, rc, weight, estimate)
+
+  OR <- c(NA, OR)
+  LL <- c(NA, LL)
+  UL <- c(NA, UL)
+
+  table <- data.frame(study, re, rc, forest="", weight, estimate, stringsAsFactors=FALSE)
+  dat <- data.frame(mean=OR, lower=LL, upper=UL)
+
+  texFP(table, dat, filename="~/blah.tex", variable="b", summary=c(1, 8), left.label="Favors experimental", right.label="Favors control")
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+\documentclass[border=10pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[table]{xcolor}
+\usepackage{tikz}
+\usepackage{dcolumn}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\usepackage[defaultsans]{lato}
+\renewcommand{\familydefault}{\sfdefault}
+
+\newcommand{\drawDiamond}[4]{
+\draw[fill=black] (axis cs: #2,#4) -- (axis cs: #1,#4+0.25) -- (axis cs: #3,#4)-- (axis cs: #1,#4-0.25) -- (axis cs: #2,#4);
+}
+
+\begin{document}
+
+\pgfplotstableread{
+x x-max x-min y
+   1.73 1.01 0.64 7
+   1.66 17.55 1.52 6
+   2.2 2.8 1.23 5
+   1.58 3.02 1.03 4
+   4.33 36.28 3.87 3
+   5 16.46 3.83 2
+}{\datatable}
+
+\pgfplotsset{/pgfplots/error bars/error bar style={semithick}}
+\newcommand{\errplot}{%
+\begin{tikzpicture}[trim axis left,trim axis right]
+\begin{semilogxaxis}[y=\baselineskip,
+   ymax=7.45,
+   ymin=0,
+   xmin=0.0204081632653061,
+   xmax=49,
+   xtick={0.0204081632653061,0.142857142857143,1,7,49},
+   xticklabels={1/49,1/7,1,7,49},
+   clip mode=individual,
+   every tick/.style={black, semithick},
+   xtick align=outside,
+   axis y line*=middle,
+   y axis line style=dashed,
+   ytick=\empty,
+   y post scale=1.5,
+   axis x line*=bottom]
+\addplot [only marks, mark=square*, mark options={scale=1.25, fill=pink}, color=black]
+  plot [error bars/.cd, x dir=both, x explicit]
+  table [y=y, x error plus=x-max, x error minus=x-min]{\datatable};
+\drawDiamond{1.96}{1.37}{2.8}{1}
+\node[left=0.25cm] at (axis cs: 1, -1.5) {Favors experimental};
+\node[right=0.25cm] at (axis cs: 1, -1.5) {Favors control};
+\end{semilogxaxis}
+\end{tikzpicture}%
+}
+
+\renewcommand{\arraystretch}{1.5}
+\rowcolors{2}{gray!25}{white}
+\centering                          
+\begin{tabular}{l l l c r r}           
+&&&&\\[-2\normalbaselineskip] % Unfortunately necessary hack
+   \textbf{Author (Year)} & \textbf{Treatment} & \textbf{Control} & \textbf{} & \textbf{Weight (\%)} & \textbf{OR (95\% CI)} \\
+   Onen (2000) & 58/212 & 38/218 &  & 65.3 & 1.73 (1.09, 2.74) \\
+   Marcus (2001) & 2/37 & 1/30 &  & 2.4 & 1.66 (0.14, 19.21) \\
+   Girkin (2006) & 7/667 & 32/6667 &  & 13.5 & 2.20 (0.97, 5.00) \\
+   Roberts (2009) & 9/52 & 7/60 &  & 12.6 & 1.58 (0.55, 4.60) \\
+   Khandgave (2013) & 4/40 & 1/40 &  & 2.1 & 4.33 (0.46, 40.61) \\
+   Bilgin (2014) & 10/24 & 3/24 &  & 4.1 & 5.00 (1.17, 21.46) \\
+   \textbf{Summary} & \textbf{90/1032} & \textbf{83/7039} & \textbf{} & \textbf{100} & \textbf{1.96 (1.37, 2.80)} \\
+   \rowcolor{white}
+    &  &  & \multirow{-8}{7cm}{\errplot} &  &  \\[4ex]
+\end{tabular}
+
+\end{document}
+#+end_example
+
+Which compiles to:
+
+[[./img/pgf_forest.svg]]
+
+* Footnotes
+
+[fn:1] https://tex.stackexchange.com/a/19356
