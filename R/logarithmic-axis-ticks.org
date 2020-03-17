@@ -6,15 +6,20 @@
 #+END_SRC
 #+CALL: add-bars()
 
-#+TITLE: Generate symmetric, whole number/fraction axis ticks
+#+TITLE: Generate logarithmic axis ticks
 
 #+BEGIN_SRC R :session tmp :exports both
   iseq <- function(i=10, n=5) {
     exp(seq(log(i^-n), log(i^n), length.out = n*2+1))
   }
 
+  crop <- function(x, y) {
+      max <- min(y[y >= max(x)])
+      min <- max(y[y <= min(x)])
+       y[y >= min & y <= max]
+  }
 
-  findLogTicks <- function(LL, UL) {
+  findLogTicks <- function(LL, UL, symmetric=FALSE) {
     min <- 10000
     for (i in 1:10) {
       for (n in 2:4) {
@@ -30,6 +35,10 @@
     end <- length(label)
     label[1:(start-1)] <- sprintf("1/%s", rev(label[(start+1):end]))
     names(ticks) <- label
+
+    if (symmetric == FALSE) {
+      ticks <- crop(c(LL, UL), ticks)
+    }
 
     if (length(ticks) == 9) {
        ticks[seq(1, length(ticks), by=2)]
