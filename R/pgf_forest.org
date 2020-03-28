@@ -73,16 +73,16 @@ The $\LaTeX$ template is adapted from a Stack Overflow post.[fn:1]
   \\end{document}"
 
   round0.5 <- function(x) {
-      round(x * 2, 0) / 2
+    round(x * 2, 0) / 2
   }
 
   findConTicks <- function(...) {
-      lim <- round0.5(max(abs(c(...))))
-      xmin <- -lim - 0.1
-      xmax <- lim + 0.1
-      ticks <- seq(xmin, xmax, length.out=5)
-      names(ticks) <- ticks
-      ticks
+    lim <- round0.5(max(abs(c(...))))
+    xmin <- -lim - 0.1
+    xmax <- lim + 0.1
+    ticks <- seq(xmin, xmax, length.out=5)
+    names(ticks) <- ticks
+    ticks
   }
 
   iseq <- function(i=10, n=5) {
@@ -103,91 +103,102 @@ The $\LaTeX$ template is adapted from a Stack Overflow post.[fn:1]
     label <- format(ticks, trim=TRUE, scientific=FALSE, drop0trailing=TRUE)
     start <- which(label == 1)
     end <- length(label)
-    #label[1:(start-1)] <- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
+                                          #label[1:(start-1)] <- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
     label[1:(start-1)] <- sprintf("1/%s", rev(label[(start+1):end]))
     names(ticks) <- label
 
     if (length(ticks) == 9) {
-       ticks[seq(1, length(ticks), by=2)]
+      ticks[seq(1, length(ticks), by=2)]
     } else {
-       ticks
+      ticks
     }
   }
 
-  texFP <- function(table, dat, filename="forestplot.tex", variable="b", summary=FALSE, left.label="", right.label="") {
+  mgsub <- function(..., template)
+  {
+    strings <- c(...)
+    n <- length(strings) - 1
+    for (i in seq(1, n, 2)) { # Iterate over pairs
+      template <- gsub(strings[i], strings[i+1], template, fixed=TRUE)
+    }
+    template
+  }
 
-      n <- nrow(dat)
-      i <- n:1
+  pgf.forest <- function(table, dat, filename="forestplot.tex", variable="b", summary=FALSE, left.label="", right.label="") {
 
-      if (variable == "b") {
-          xticks <- findLogTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
-          null <- 1
-      } else if (variable == "c") {
-          xticks <- findConTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
-          template <- gsub("semilogxaxis", "axis", template)
-          null <- 0
-      } else {
-          return()
-      }
+    n <- nrow(dat)
+    i <- n:1
 
-      ymax <- n + 0.45 - 1
-      ymin <- 0
-      xmin <- min(xticks)
-      xmax <- max(xticks)
-      xticklabels <- names(xticks)
-      xticks <- paste(xticks, collapse=",")
-      xticklabels <- paste(xticklabels, collapse=",")
+    if (variable == "b") {
+      xticks <- findLogTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+      null <- 1
+    } else if (variable == "c") {
+      xticks <- findConTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+      template <- gsub("semilogxaxis", "axis", template)
+      null <- 0
+    } else {
+      return()
+    }
 
-      bold <- rep(FALSE, nrow(table))
-      bold[summary] <- TRUE
+    ymax <- n + 0.45 - 1
+    ymin <- 0
+    xmin <- min(xticks)
+    xmax <- max(xticks)
+    xticklabels <- names(xticks)
+    xticks <- paste(xticks, collapse=",")
+    xticklabels <- paste(xticklabels, collapse=",")
 
-      diamondi <- setdiff(which(bold), which(is.na(dat$mean)))
-      diamonds <- sprintf("\\drawDiamond{%s}{%s}{%s}{%s}",
-                          dat[diamondi,]$mean,
-                          dat[diamondi,]$lower,
-                          dat[diamondi,]$upper,
-                          i[diamondi])
-      diamonds <- paste0(diamonds, collapse = "\n")
+    bold <- rep(FALSE, nrow(table))
+    bold[summary] <- TRUE
 
-      # Don't draw lines for summary rows
-      skip <- c(which(bold), which(is.na(dat$mean)))
-      tmp1 <- dat[-skip, ]
-      tmp2 <- i[-skip]
-      dat <- sprintf("%s %s %s %s", tmp1$mean, tmp1$upper - tmp1$mean, tmp1$mean - tmp1$lower, tmp2)
-      dat <- paste("  ", dat, collapse="\n")
+    diamondi <- setdiff(which(bold), which(is.na(dat$mean)))
+    diamonds <- sprintf("\\drawDiamond{%s}{%s}{%s}{%s}",
+                        dat[diamondi,]$mean,
+                        dat[diamondi,]$lower,
+                        dat[diamondi,]$upper,
+                        i[diamondi])
+    diamonds <- paste0(diamonds, collapse = "\n")
 
-      # Remove non-values
-      table[is.na(table)] <- ""
-      table[table == "NA (NA, NA)"] <- ""
+                                          # Don't draw lines for summary rows
+    skip <- c(which(bold), which(is.na(dat$mean)))
+    tmp1 <- dat[-skip, ]
+    tmp2 <- i[-skip]
+    dat <- sprintf("%s %s %s %s", tmp1$mean, tmp1$upper - tmp1$mean, tmp1$mean - tmp1$lower, tmp2)
+    dat <- paste("  ", dat, collapse="\n")
 
-      alignment <- c(rep("l", which(colnames(table) == "forest") - 1),
-                     "c",
-                     rep("r", length(colnames(table)) - which(colnames(table) == "forest")))
-      alignment <- paste(alignment, collapse=" ")
+                                          # Remove non-values
+    table[is.na(table)] <- ""
+    table[table == "NA (NA, NA)"] <- ""
 
-      table[which(bold),] <- sapply(as.vector(table[which(bold),]), function(i) sprintf("\\textbf{%s}", i))
-      table <- rbind(table, "")
-      table$forest[nrow(table)] <- sprintf("\\multirow{-%d}{7cm}{\\errplot}", n)
-      table <- apply(table, 1, paste, collapse = " & ")
-      table <- paste("  ", table, "\\\\")
-      table[length(table)-1] <- paste0(table[length(table)-1], "\n   \\rowcolor{white}")
-      table <- paste(table, collapse="\n")
+    alignment <- c(rep("l", which(colnames(table) == "forest") - 1),
+                   "c",
+                   rep("r", length(colnames(table)) - which(colnames(table) == "forest")))
+    alignment <- paste(alignment, collapse=" ")
 
-      template <- gsub("%scores", dat, template, fixed=TRUE)
-      template <- gsub("%ymax", ymax, template, fixed=TRUE)
-      template <- gsub("%ymin", ymin, template, fixed=TRUE)
-      template <- gsub("%xmax", xmax, template, fixed=TRUE)
-      template <- gsub("%xmin", xmin, template, fixed=TRUE)
-      template <- gsub("%xticks", xticks, template, fixed=TRUE)
-      template <- gsub("%xticklabels", xticklabels, template, fixed=TRUE)
-      template <- gsub("%diamonds", diamonds, template, fixed=TRUE)
-      template <- gsub("%null", null, template, fixed=TRUE)
-      template <- gsub("%left.label", left.label, template, fixed=TRUE)
-      template <- gsub("%right.label", right.label, template, fixed=TRUE)
-      template <- gsub("%alignment", alignment, template, fixed=TRUE)
-      template <- gsub("%table", table, template, fixed=TRUE)
+    table[which(bold),] <- sapply(as.vector(table[which(bold),]), function(i) sprintf("\\textbf{%s}", i))
+    table <- rbind(table, "")
+    table$forest[nrow(table)] <- sprintf("\\multirow{-%d}{7cm}{\\errplot}", n)
+    table <- apply(table, 1, paste, collapse = " & ")
+    table <- paste("  ", table, "\\\\")
+    table[length(table)-1] <- paste0(table[length(table)-1], "\n   \\rowcolor{white}")
+    table <- paste(table, collapse="\n")
 
-      writeLines(template, filename)
+    template <- mgsub("%scores", dat,
+                      "%ymax", ymax,
+                      "%ymin", ymin,
+                      "%xmax", xmax,
+                      "%xmin", xmin,
+                      "%ticks", xticks,
+                      "%xticklabels", xticklabels,
+                      "%diamonds", diamonds,
+                      "%null", null,
+                      "%left.label", left.label,
+                      "%right.label", right.label,
+                      "%alignment", alignment,
+                      "%table", table,
+                      template=template)
+
+    writeLines(template, filename)
   }
 #+END_SRC
 
@@ -256,16 +267,16 @@ The output is a ~.tex~ file such as:
   \\end{document}"
 
   round0.5 <- function(x) {
-      round(x * 2, 0) / 2
+    round(x * 2, 0) / 2
   }
 
   findConTicks <- function(...) {
-      lim <- round0.5(max(abs(c(...))))
-      xmin <- -lim - 0.1
-      xmax <- lim + 0.1
-      ticks <- seq(xmin, xmax, length.out=5)
-      names(ticks) <- ticks
-      ticks
+    lim <- round0.5(max(abs(c(...))))
+    xmin <- -lim - 0.1
+    xmax <- lim + 0.1
+    ticks <- seq(xmin, xmax, length.out=5)
+    names(ticks) <- ticks
+    ticks
   }
 
   iseq <- function(i=10, n=5) {
@@ -286,94 +297,103 @@ The output is a ~.tex~ file such as:
     label <- format(ticks, trim=TRUE, scientific=FALSE, drop0trailing=TRUE)
     start <- which(label == 1)
     end <- length(label)
-    #label[1:(start-1)] <- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
+                                          #label[1:(start-1)] <- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
     label[1:(start-1)] <- sprintf("1/%s", rev(label[(start+1):end]))
     names(ticks) <- label
 
     if (length(ticks) == 9) {
-       ticks[seq(1, length(ticks), by=2)]
+      ticks[seq(1, length(ticks), by=2)]
     } else {
-       ticks
+      ticks
     }
   }
 
-  texFP <- function(table, dat, filename="forestplot.tex", variable="b", summary=FALSE, left.label="", right.label="") {
-
-      n <- nrow(dat)
-      i <- n:1
-
-      if (variable == "b") {
-          xticks <- findLogTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
-          null <- 1
-      } else if (variable == "c") {
-          xticks <- findConTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
-          template <- gsub("semilogxaxis", "axis", template)
-          null <- 0
-      } else {
-          return()
-      }
-
-      ymax <- n + 0.45 - 1
-      ymin <- 0
-      xmin <- min(xticks)
-      xmax <- max(xticks)
-      xticklabels <- names(xticks)
-      xticks <- paste(xticks, collapse=",")
-      xticklabels <- paste(xticklabels, collapse=",")
-
-      bold <- rep(FALSE, nrow(table))
-      bold[summary] <- TRUE
-
-      diamondi <- setdiff(which(bold), which(is.na(dat$mean)))
-      diamonds <- sprintf("\\drawDiamond{%s}{%s}{%s}{%s}",
-                          dat[diamondi,]$mean,
-                          dat[diamondi,]$lower,
-                          dat[diamondi,]$upper,
-                          i[diamondi])
-      diamonds <- paste0(diamonds, collapse = "\n")
-
-      # Don't draw lines for summary rows
-      skip <- c(which(bold), which(is.na(dat$mean)))
-      tmp1 <- dat[-skip, ]
-      tmp2 <- i[-skip]
-      dat <- sprintf("%s %s %s %s", tmp1$mean, tmp1$upper - tmp1$mean, tmp1$mean - tmp1$lower, tmp2)
-      dat <- paste("  ", dat, collapse="\n")
-
-      # Remove non-values
-      table[is.na(table)] <- ""
-      table[table == "NA (NA, NA)"] <- ""
-
-      alignment <- c(rep("l", which(colnames(table) == "forest") - 1),
-                     "c",
-                     rep("r", length(colnames(table)) - which(colnames(table) == "forest")))
-      alignment <- paste(alignment, collapse=" ")
-
-      table[which(bold),] <- sapply(as.vector(table[which(bold),]), function(i) sprintf("\\textbf{%s}", i))
-      table <- rbind(table, "")
-      table$forest[nrow(table)] <- sprintf("\\multirow{-%d}{7cm}{\\errplot}", n)
-      table <- apply(table, 1, paste, collapse = " & ")
-      table <- paste("  ", table, "\\\\")
-      table[length(table)-1] <- paste0(table[length(table)-1], "\n   \\rowcolor{white}")
-      table <- paste(table, collapse="\n")
-
-      template <- gsub("%scores", dat, template, fixed=TRUE)
-      template <- gsub("%ymax", ymax, template, fixed=TRUE)
-      template <- gsub("%ymin", ymin, template, fixed=TRUE)
-      template <- gsub("%xmax", xmax, template, fixed=TRUE)
-      template <- gsub("%xmin", xmin, template, fixed=TRUE)
-      template <- gsub("%xticks", xticks, template, fixed=TRUE)
-      template <- gsub("%xticklabels", xticklabels, template, fixed=TRUE)
-      template <- gsub("%diamonds", diamonds, template, fixed=TRUE)
-      template <- gsub("%null", null, template, fixed=TRUE)
-      template <- gsub("%left.label", left.label, template, fixed=TRUE)
-      template <- gsub("%right.label", right.label, template, fixed=TRUE)
-      template <- gsub("%alignment", alignment, template, fixed=TRUE)
-      template <- gsub("%table", table, template, fixed=TRUE)
-
-      cat(template)
+  mgsub <- function(..., template)
+  {
+    strings <- c(...)
+    n <- length(strings) - 1
+    for (i in seq(1, n, 2)) { # Iterate over pairs
+      template <- gsub(strings[i], strings[i+1], template, fixed=TRUE)
+    }
+    template
   }
 
+  pgf.forest <- function(table, dat, filename="forestplot.tex", variable="b", summary=FALSE, left.label="", right.label="") {
 
+    n <- nrow(dat)
+    i <- n:1
+
+    if (variable == "b") {
+      xticks <- findLogTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+      null <- 1
+    } else if (variable == "c") {
+      xticks <- findConTicks(dat$lower[!is.na(dat$lower)], dat$upper[!is.na(dat$lower)])
+      template <- gsub("semilogxaxis", "axis", template)
+      null <- 0
+    } else {
+      return()
+    }
+
+    ymax <- n + 0.45 - 1
+    ymin <- 0
+    xmin <- min(xticks)
+    xmax <- max(xticks)
+    xticklabels <- names(xticks)
+    xticks <- paste(xticks, collapse=",")
+    xticklabels <- paste(xticklabels, collapse=",")
+
+    bold <- rep(FALSE, nrow(table))
+    bold[summary] <- TRUE
+
+    diamondi <- setdiff(which(bold), which(is.na(dat$mean)))
+    diamonds <- sprintf("\\drawDiamond{%s}{%s}{%s}{%s}",
+                        dat[diamondi,]$mean,
+                        dat[diamondi,]$lower,
+                        dat[diamondi,]$upper,
+                        i[diamondi])
+    diamonds <- paste0(diamonds, collapse = "\n")
+
+                                          # Don't draw lines for summary rows
+    skip <- c(which(bold), which(is.na(dat$mean)))
+    tmp1 <- dat[-skip, ]
+    tmp2 <- i[-skip]
+    dat <- sprintf("%s %s %s %s", tmp1$mean, tmp1$upper - tmp1$mean, tmp1$mean - tmp1$lower, tmp2)
+    dat <- paste("  ", dat, collapse="\n")
+
+                                          # Remove non-values
+    table[is.na(table)] <- ""
+    table[table == "NA (NA, NA)"] <- ""
+
+    alignment <- c(rep("l", which(colnames(table) == "forest") - 1),
+                   "c",
+                   rep("r", length(colnames(table)) - which(colnames(table) == "forest")))
+    alignment <- paste(alignment, collapse=" ")
+
+    table[which(bold),] <- sapply(as.vector(table[which(bold),]), function(i) sprintf("\\textbf{%s}", i))
+    table <- rbind(table, "")
+    table$forest[nrow(table)] <- sprintf("\\multirow{-%d}{7cm}{\\errplot}", n)
+    table <- apply(table, 1, paste, collapse = " & ")
+    table <- paste("  ", table, "\\\\")
+    table[length(table)-1] <- paste0(table[length(table)-1], "\n   \\rowcolor{white}")
+    table <- paste(table, collapse="\n")
+
+    template <- mgsub("%scores", dat,
+                      "%ymax", ymax,
+                      "%ymin", ymin,
+                      "%xmax", xmax,
+                      "%xmin", xmin,
+                      "%ticks", xticks,
+                      "%xticklabels", xticklabels,
+                      "%diamonds", diamonds,
+                      "%null", null,
+                      "%left.label", left.label,
+                      "%right.label", right.label,
+                      "%alignment", alignment,
+                      "%table", table,
+                      template=template)
+
+    cat(template)
+  }
 
   study <- c("Author (Year)", "Onen (2000)", "Marcus (2001)", "Girkin (2006)", "Roberts (2009)", "Khandgave (2013)", "Bilgin (2014)", "Summary")
   re <- c("Treatment", "58/212", "2/37", "7/667", "9/52", "4/40", "10/24", "90/1032")
@@ -397,31 +417,7 @@ The output is a ~.tex~ file such as:
   table <- data.frame(study, re, rc, forest="", weight, estimate, stringsAsFactors=FALSE)
   dat <- data.frame(mean=OR, lower=LL, upper=UL)
 
-  texFP(table, dat, filename="~/blah.tex", variable="b", summary=c(1, 8), left.label="Favors experimental", right.label="Favors control")
-
-  study <- c("Author (Year)", "Onen (2000)", "Marcus (2001)", "Girkin (2006)", "Roberts (2009)", "Khandgave (2013)", "Bilgin (2014)", "Summary")
-  re <- c("Treatment", "58/212", "2/37", "7/667", "9/52", "4/40", "10/24", "90/1032")
-  rc <- c("Control", "38/218", "1/30", "32/6667", "7/60", "1/40", "3/24", "83/7039")
-
-  OR <- c(1.73, 1.66, 2.20, 1.58, 4.33, 5, 1.96)
-  LL <- c(1.09, 0.14, 0.97, 0.55, 0.46, 1.17, 1.37)
-  UL <- c(2.74, 19.21, 5, 4.6, 40.61, 21.46, 2.80)
-
-  weight <- c("Weight (\\%)", 65.3, 2.4, 13.5, 12.6, 2.1, 4.1, 100)
-
-  estimate <- sprintf("%.02f (%.02f, %.02f)", OR, LL, UL)
-  estimate <- c("OR (95\\% CI)", estimate)
-
-  table <- data.frame(study ,re, rc, weight, estimate)
-
-  OR <- c(NA, OR)
-  LL <- c(NA, LL)
-  UL <- c(NA, UL)
-
-  table <- data.frame(study, re, rc, forest="", weight, estimate, stringsAsFactors=FALSE)
-  dat <- data.frame(mean=OR, lower=LL, upper=UL)
-
-  texFP(table, dat, filename="~/blah.tex", variable="b", summary=c(1, 8), left.label="Favors treatment", right.label="Favors control")
+  pgf.forest(table, dat, filename="~/blah.tex", variable="b", summary=c(1, 8), left.label="Favors treatment", right.label="Favors control")
 #+END_SRC
 
 #+RESULTS:
