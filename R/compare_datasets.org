@@ -49,14 +49,14 @@
 
       df3 <- merge(df1, df2, by=grouping_columns, all=TRUE)
 
-      reviewer1 <- apply(df3[grepl("\\.x$", colnames(df3))], 1, function(x) !all(is.na(x)))
-      reviewer2 <- apply(df3[grepl("\\.y$", colnames(df3))], 1, function(x) !all(is.na(x)))
-      both <- reviewer1 & reviewer2
-      which_reviewer <- rep(FALSE, nrow(df3))
+      dataset1 <- apply(df3[grepl("\\.x$", colnames(df3))], 1, function(x) !all(is.na(x)))
+      dataset2 <- apply(df3[grepl("\\.y$", colnames(df3))], 1, function(x) !all(is.na(x)))
+      both <- dataset1 & dataset2
+      which_dataset <- rep(FALSE, nrow(df3))
 
-      which_reviewer[both] <- "1 & 2"
-      which_reviewer[reviewer1 & !both] <- "1"
-      which_reviewer[reviewer2 & !both] <- "2"
+      which_dataset[both] <- "1 & 2"
+      which_dataset[dataset1 & !both] <- "1"
+      which_dataset[dataset2 & !both] <- "2"
 
       output <- df3[grouping_columns]
       for (value_column in value_columns) {
@@ -65,7 +65,7 @@
           output <- cbind(output, concatCols(df3[c(a, b)]))
       }
 
-      output <- cbind(which_reviewer, output)
+      output <- cbind(which_dataset, output)
       colnames(output) <- c("source", grouping_columns, value_columns)
 
       output

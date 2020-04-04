@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-04-04 Sat 10:44 -->
+<!-- 2020-04-04 Sat 10:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Compare two datsets</title>
@@ -256,7 +256,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Compare two datsets</h1>
-<table id="org554a002" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org95697f5" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -335,7 +335,7 @@ for the JavaScript code in this tag.
 </tbody>
 </table>
 
-<table id="org348a8ce" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org884187f" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -431,14 +431,14 @@ combineSheets &lt;- function(df1, df2, grouping_columns) {
 
     df3 &lt;- merge(df1, df2, by=grouping_columns, all=TRUE)
 
-    reviewer1 &lt;- apply(df3[grepl("\\.x$", colnames(df3))], 1, function(x) !all(is.na(x)))
-    reviewer2 &lt;- apply(df3[grepl("\\.y$", colnames(df3))], 1, function(x) !all(is.na(x)))
-    both &lt;- reviewer1 &amp; reviewer2
-    which_reviewer &lt;- rep(FALSE, nrow(df3))
+    dataset1 &lt;- apply(df3[grepl("\\.x$", colnames(df3))], 1, function(x) !all(is.na(x)))
+    dataset2 &lt;- apply(df3[grepl("\\.y$", colnames(df3))], 1, function(x) !all(is.na(x)))
+    both &lt;- dataset1 &amp; dataset2
+    which_dataset &lt;- rep(FALSE, nrow(df3))
 
-    which_reviewer[both] &lt;- "1 &amp; 2"
-    which_reviewer[reviewer1 &amp; !both] &lt;- "1"
-    which_reviewer[reviewer2 &amp; !both] &lt;- "2"
+    which_dataset[both] &lt;- "1 &amp; 2"
+    which_dataset[dataset1 &amp; !both] &lt;- "1"
+    which_dataset[dataset2 &amp; !both] &lt;- "2"
 
     output &lt;- df3[grouping_columns]
     for (value_column in value_columns) {
@@ -447,7 +447,7 @@ combineSheets &lt;- function(df1, df2, grouping_columns) {
 	output &lt;- cbind(output, concatCols(df3[c(a, b)]))
     }
 
-    output &lt;- cbind(which_reviewer, output)
+    output &lt;- cbind(which_dataset, output)
     colnames(output) &lt;- c("source", grouping_columns, value_columns)
 
     output
