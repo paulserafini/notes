@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-12 Tue 20:44 -->
+<!-- 2020-05-15 Fri 22:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Compare two datsets</title>
@@ -256,7 +256,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Compare two datsets</h1>
-<table id="org7a597e5" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgd18f514" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -335,7 +335,7 @@ for the JavaScript code in this tag.
 </tbody>
 </table>
 
-<table id="org117d8df" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgb28cfc9" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -581,6 +581,47 @@ combineSheets(df1, df2, grouping_columns)
 </tr>
 </tbody>
 </table>
+
+<p>
+If you want to merge multiple datasets, you can do something like the below. However, in order to know which row came from which dataset you will have to add a column to each dataset with an ID of some sort.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">concatCols &lt;- function(x) {
+     x &lt;- as.matrix(x)
+     x1 &lt;- x[,1]
+     x2 &lt;- x[,2]
+     x1[is.na(x1) &amp; is.na(x2)] &lt;- "NR"
+     x1[!is.na(x2) &amp; is.na(x1)] &lt;- x2[!is.na(x2) &amp; is.na(x1)]
+     x2[!is.na(x1) &amp; is.na(x2)] &lt;- x1[!is.na(x1) &amp; is.na(x2)]
+     x1[x1!=x2] &lt;- paste(x1[x1!=x2], "~", x2[x1!=x2])
+     x1
+}
+
+combineSheets &lt;- function(df1, df2, grouping_columns) {
+
+    value_columns &lt;- colnames(df1)[!colnames(df1) %in% grouping_columns]
+
+    df3 &lt;- merge(df1, df2, by=grouping_columns, all=TRUE)
+
+    output &lt;- df3[grouping_columns]
+    for (value_column in value_columns) {
+	a &lt;- paste0(value_column, ".x")
+	b &lt;- paste0(value_column, ".y")
+	output &lt;- cbind(output, concatCols(df3[c(a, b)]))
+    }
+
+    colnames(output) &lt;- c(grouping_columns, value_columns)
+
+    output[] &lt;- lapply(output, function(x) gsub("~  ", "~ ", x))
+
+    output
+}
+
+Reduce(function(x, y) combineSheets(x, y, grouping_columns),
+       list(df1, df2, df3))
+</pre>
+</div>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>

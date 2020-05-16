@@ -92,3 +92,41 @@
 |      2 |  3 |  1 |  2 |     3 |
 |      2 |  3 |  2 |  1 |     2 |
 |      2 |  3 |  2 |  2 |     4 |
+
+If you want to merge multiple datasets, you can do something like the below. However, in order to know which row came from which dataset you will have to add a column to each dataset with an ID of some sort.
+
+#+BEGIN_SRC R :exports both
+  concatCols <- function(x) {
+       x <- as.matrix(x)
+       x1 <- x[,1]
+       x2 <- x[,2]
+       x1[is.na(x1) & is.na(x2)] <- "NR"
+       x1[!is.na(x2) & is.na(x1)] <- x2[!is.na(x2) & is.na(x1)]
+       x2[!is.na(x1) & is.na(x2)] <- x1[!is.na(x1) & is.na(x2)]
+       x1[x1!=x2] <- paste(x1[x1!=x2], "~", x2[x1!=x2])
+       x1
+  }
+
+  combineSheets <- function(df1, df2, grouping_columns) {
+
+      value_columns <- colnames(df1)[!colnames(df1) %in% grouping_columns]
+
+      df3 <- merge(df1, df2, by=grouping_columns, all=TRUE)
+
+      output <- df3[grouping_columns]
+      for (value_column in value_columns) {
+          a <- paste0(value_column, ".x")
+          b <- paste0(value_column, ".y")
+          output <- cbind(output, concatCols(df3[c(a, b)]))
+      }
+
+      colnames(output) <- c(grouping_columns, value_columns)
+
+      output[] <- lapply(output, function(x) gsub("~  ", "~ ", x))
+
+      output
+  }
+
+  Reduce(function(x, y) combineSheets(x, y, grouping_columns),
+         list(df1, df2, df3))
+#+END_SRC
