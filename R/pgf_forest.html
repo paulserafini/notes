@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-24 Sun 19:40 -->
+<!-- 2020-05-24 Sun 19:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Forest tables in pgfplots through R</title>
@@ -374,8 +374,8 @@ findLogTicks &lt;- function(LL, UL) {
   label &lt;- format(ticks, trim=TRUE, scientific=FALSE, drop0trailing=TRUE)
   start &lt;- which(label == 1)
   end &lt;- length(label)
-					#label[1:(start-1)] &lt;- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
-  label[1:(start-1)] &lt;- sprintf("1/%s", rev(label[(start+1):end]))
+  label[1:(start-1)] &lt;- sprintf("$\\frac{1}{%s}$", rev(label[(start+1):end]))
+  #label[1:(start-1)] &lt;- sprintf("1/%s", rev(label[(start+1):end]))
   names(ticks) &lt;- label
 
   if (length(ticks) == 9) {
@@ -514,7 +514,7 @@ x x-max x-min y
    xmin=0.0204081632653061,
    xmax=49,
    xtick={0.0204081632653061,0.142857142857143,1,7,49},
-   xticklabels={1/49,1/7,1,7,49},
+   xticklabels={$\frac{1}{49}$,$\frac{1}{7}$,1,7,49},
    clip mode=individual,
    every tick/.style={black, semithick},
    xtick align=outside,
