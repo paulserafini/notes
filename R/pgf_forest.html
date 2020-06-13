@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-24 Sun 19:46 -->
+<!-- 2020-06-13 Sat 14:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Forest tables in pgfplots through R</title>
@@ -293,6 +293,7 @@ template &lt;- "\\documentclass[border=10pt]{standalone}
 \\usepackage{booktabs}
 \\usepackage{pgfplots}
 \\usepackage{cmbright}
+\\tikzset{&gt;=latex} %% solid arrow heads
 
 \\newcommand{\\drawDiamond}[4]{
 \\draw[fill=black] (axis cs: #2,#4) -- (axis cs: #1,#4+0.25) -- (axis cs: #3,#4)-- (axis cs: #1,#4-0.25) -- (axis cs: #2,#4);
@@ -327,8 +328,12 @@ x x-max x-min y
   plot [error bars/.cd, x dir=both, x explicit]
   table [y=y, x error plus=x-max, x error minus=x-min]{\\datatable};
 %diamonds
-\\node[left=0.25cm] at (axis cs: %null, -1.5) {%left.label};
-\\node[right=0.25cm] at (axis cs: %null, -1.5) {%right.label};
+
+\\draw[-&gt;] (axis cs: %null, -1.5)+(-1mm,0.0cm) -- (axis cs: %xmin, -1.5) node[at start, below left] {%left.label};
+
+\\draw[-&gt;] (axis cs: %null, -1.5)+(1mm,0.0cm) -- (axis cs: %xmax, -1.5) node[at start, below right] {%right.label};
+
+
 \\end{semilogxaxis}
 \\end{tikzpicture}%%
 }
@@ -338,7 +343,7 @@ x x-max x-min y
 \\centering                          
 \\begin{tabular}{%alignment}           
 &amp;&amp;&amp;&amp;\\\\[-2\\normalbaselineskip] %% Unfortunately necessary hack
-%table[4ex]
+%table[6ex]
 \\end{tabular}
 
 \\end{document}"
@@ -488,6 +493,7 @@ The output is a <code>.tex</code> file such as:
 \usepackage{booktabs}
 \usepackage{pgfplots}
 \usepackage{cmbright}
+\tikzset{&gt;=latex} %% solid arrow heads
 
 \newcommand{\drawDiamond}[4]{
 \draw[fill=black] (axis cs: #2,#4) -- (axis cs: #1,#4+0.25) -- (axis cs: #3,#4)-- (axis cs: #1,#4-0.25) -- (axis cs: #2,#4);
@@ -528,8 +534,10 @@ x x-max x-min y
   plot [error bars/.cd, x dir=both, x explicit]
   table [y=y, x error plus=x-max, x error minus=x-min]{\datatable};
 \drawDiamond{1.96}{1.37}{2.8}{1}
-\node[left=0.25cm] at (axis cs: 1, -1.5) {Favors treatment};
-\node[right=0.25cm] at (axis cs: 1, -1.5) {Favors control};
+\node[left=0.25cm] at (axis cs: 1, -1.7) {Favors treatment};
+\node[right=0.25cm] at (axis cs: 1, -1.7) {Favors control};
+\draw[-&gt;] (axis cs: 1, -1.3)+(-1mm,0.0cm) -- (axis cs: 0.0204081632653061, -1.3);
+\draw[-&gt;] (axis cs: 1, -1.3)+(1mm,0.0cm) -- (axis cs: 49, -1.3);
 \end{semilogxaxis}
 \end{tikzpicture}%%
 }
