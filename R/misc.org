@@ -320,3 +320,17 @@ options(scipen = 999)
 #+BEGIN_SRC R
   mat[] <- lapply(mat, function(x) gsub("a", "b", x))
 #+END_SRC
+
+* Sample from a matrix
+
+#+BEGIN_SRC R
+  sample(split(df, df$group), size = n, replace = TRUE)
+#+END_SRC
+* Filter groups in long data
+
+#+BEGIN_SRC R
+df %>%
+  group_by(id) %>%
+  filter(any(value >= x & var == 'y')) %>%
+  ungroup()
+#+END_SRC
