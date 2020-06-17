@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-16 Tue 20:25 -->
+<!-- 2020-06-16 Tue 20:24 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>R</title>
+<title>Get all the pairwise comparisons in a data set</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,29 +255,177 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">R</h1>
-<ul class="org-ul">
-<li><a href="./annotate-forestplot.html">Add an interpretation label to the output of the forestplot function</a></li>
-<li><a href="./base_block_plots.html">Block graphics in base R</a></li>
-<li><a href="./base_forestplot.html">Create a forest plot table using base R graphics</a></li>
-<li><a href="./compare_datasets.html">Compare two datsets</a></li>
-<li><a href="./draw_distributions.html">Draw and label theoretical distributions</a></li>
-<li><a href="./ggforestplot.html">Create a forest plot table in ggplot</a></li>
-<li><a href="./kolmogorov_smirnov.html">Plot the Kolmogorov-Smirnov</a></li>
-<li><a href="./logarithmic-axis-ticks.html">Generate logarithmic axis ticks</a></li>
-<li><a href="./math-notation-in-R.html">Use mathematical notation in R</a></li>
-<li><a href="./median_polish.html">Median Polish</a></li>
-<li><a href="./misc.html">Miscellaneous</a></li>
-<li><a href="./network_diagrams.html">Network diagrams</a></li>
-<li><a href="./pairwise_comparisons.html">Get all the pairwise comparisons in a data set</a></li>
-<li><a href="./pgf_forest.html">Forest tables in pgfplots through R</a></li>
-<li><a href="./pool-repeated-measures.html">Pooling repeated measures</a></li>
-<li><a href="./randomly-choose-an-outcome.html">Randomly choose an outcome</a></li>
-<li><a href="./round-multiple-variables.html">Round multiple variables simultaneously</a></li>
-<li><a href="./summarise_metanalyses.html">Create a summary table of meta-analyses on several outcomes</a></li>
-<li><a href="./text-with-an-arrow-above-it.html">Draw text with an arrow above it</a></li>
-<li><a href="./winbugs.html">Convert data into WinBUGS format</a></li>
-</ul>
+<h1 class="title">Get all the pairwise comparisons in a data set</h1>
+<table id="org58646bc" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">trial</th>
+<th scope="col" class="org-right">group</th>
+<th scope="col" class="org-right">n</th>
+<th scope="col" class="org-right">N</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">2</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+<td class="org-right">5</td>
+<td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-right">1</td>
+<td class="org-right">8</td>
+<td class="org-right">15</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-right">2</td>
+<td class="org-right">9</td>
+<td class="org-right">50</td>
+</tr>
+</tbody>
+</table>
+
+<div class="org-src-container">
+<pre class="src src-R">pairwise &lt;- function(df, trial) {
+
+  work &lt;- function(df, trial) {
+
+    combns &lt;- expand.grid(df$group, df$group)
+    combns &lt;- t(apply(combns, 1, sort)) # sort rows so the order is consistent
+    combns &lt;- combns[!duplicated(combns), ]
+    combns &lt;- combns[combns[,1] != combns[,2], , drop=FALSE]
+
+    df1 &lt;- df
+    colnames(df1)[colnames(df1) != trial] &lt;- paste0(colnames(df1)[colnames(df1) != trial], "_1")
+    df1$key &lt;- combns[,1]
+
+    df2 &lt;- df
+    colnames(df2)[colnames(df2) != trial] &lt;- paste0(colnames(df2)[colnames(df2) != trial], "_2")
+    df2$key &lt;- 1:nrow(df2)
+
+    output &lt;- merge(df1, df2, by=c("key", trial))
+    output$key &lt;- NULL
+
+    output
+  }
+
+   do.call(rbind, lapply(split(df, df[, trial]), function(x) work(x, trial)))
+}
+
+pairwise(df, "trial")
+</pre>
+</div>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">trial</th>
+<th scope="col" class="org-right">group_1</th>
+<th scope="col" class="org-right">n_1</th>
+<th scope="col" class="org-right">N_1</th>
+<th scope="col" class="org-right">group_2</th>
+<th scope="col" class="org-right">n_2</th>
+<th scope="col" class="org-right">N_2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">2</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+<td class="org-right">5</td>
+<td class="org-right">10</td>
+<td class="org-right">2</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-right">1</td>
+<td class="org-right">8</td>
+<td class="org-right">15</td>
+<td class="org-right">1</td>
+<td class="org-right">8</td>
+<td class="org-right">15</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-right">2</td>
+<td class="org-right">9</td>
+<td class="org-right">50</td>
+<td class="org-right">1</td>
+<td class="org-right">8</td>
+<td class="org-right">15</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>
