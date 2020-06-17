@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-16 Tue 21:03 -->
+<!-- 2020-06-16 Tue 21:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Get all the pairwise comparisons in a data set</title>
@@ -256,7 +256,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Get all the pairwise comparisons in a data set</h1>
-<table id="orgc1f568d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgb2fceeb" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -279,14 +279,14 @@ for the JavaScript code in this tag.
 <tbody>
 <tr>
 <td class="org-right">1</td>
-<td class="org-left">a</td>
+<td class="org-left">b</td>
 <td class="org-right">3</td>
 <td class="org-right">9</td>
 </tr>
 
 <tr>
 <td class="org-right">1</td>
-<td class="org-left">b</td>
+<td class="org-left">a</td>
 <td class="org-right">4</td>
 <td class="org-right">10</td>
 </tr>
@@ -348,7 +348,8 @@ for the JavaScript code in this tag.
       combns &lt;- combns[!duplicated(combns), ]
       combns &lt;- combns[combns[,1] != combns[,2], , drop=FALSE]
     } else {
-      combns &lt;- matrix(c(1,1), nrow=1)
+      #combns &lt;- matrix(c(1,1), nrow=1) # if you want to compare group 1 to itself
+      return(NULL)
     }
 
     df1 &lt;- df[combns[,1],]
@@ -404,10 +405,10 @@ pairwise(df, "trial", "group")
 <tbody>
 <tr>
 <td class="org-right">1</td>
-<td class="org-left">a</td>
+<td class="org-left">b</td>
 <td class="org-right">3</td>
 <td class="org-right">9</td>
-<td class="org-left">b</td>
+<td class="org-left">a</td>
 <td class="org-right">4</td>
 <td class="org-right">10</td>
 </tr>
@@ -415,8 +416,8 @@ pairwise(df, "trial", "group")
 <tr>
 <td class="org-right">1</td>
 <td class="org-left">a</td>
-<td class="org-right">3</td>
-<td class="org-right">9</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
 <td class="org-left">c</td>
 <td class="org-right">5</td>
 <td class="org-right">10</td>
@@ -425,8 +426,8 @@ pairwise(df, "trial", "group")
 <tr>
 <td class="org-right">1</td>
 <td class="org-left">a</td>
-<td class="org-right">3</td>
-<td class="org-right">9</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
 <td class="org-left">d</td>
 <td class="org-right">7</td>
 <td class="org-right">13</td>
@@ -435,8 +436,8 @@ pairwise(df, "trial", "group")
 <tr>
 <td class="org-right">1</td>
 <td class="org-left">b</td>
-<td class="org-right">4</td>
-<td class="org-right">10</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
 <td class="org-left">c</td>
 <td class="org-right">5</td>
 <td class="org-right">10</td>
@@ -445,8 +446,8 @@ pairwise(df, "trial", "group")
 <tr>
 <td class="org-right">1</td>
 <td class="org-left">b</td>
-<td class="org-right">4</td>
-<td class="org-right">10</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
 <td class="org-left">d</td>
 <td class="org-right">7</td>
 <td class="org-right">13</td>
@@ -490,16 +491,6 @@ pairwise(df, "trial", "group")
 <td class="org-left">c</td>
 <td class="org-right">4</td>
 <td class="org-right">7</td>
-</tr>
-
-<tr>
-<td class="org-right">3</td>
-<td class="org-left">a</td>
-<td class="org-right">9</td>
-<td class="org-right">50</td>
-<td class="org-left">a</td>
-<td class="org-right">9</td>
-<td class="org-right">50</td>
 </tr>
 </tbody>
 </table>
