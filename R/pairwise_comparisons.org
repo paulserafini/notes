@@ -16,9 +16,13 @@
 |     1 |     1 | 3 |  9 |
 |     1 |     2 | 4 | 10 |
 |     1 |     3 | 5 | 10 |
+|     1 |     4 | 7 | 13 |
 |     2 |     1 | 8 | 15 |
 |     2 |     2 | 9 | 50 |
+|     2 |     3 | 4 |  7 |
 |     3 |     2 | 9 | 50 |
+
+
 
 #+BEGIN_SRC R :var df=data :colnames yes :exports both
   pairwise <- function(df, trial) {
@@ -31,14 +35,14 @@
         combns <- combns[!duplicated(combns), ]
         combns <- combns[combns[,1] != combns[,2], , drop=FALSE]
       } else {
-        combns <- matrix(1)
+        combns <- matrix(c(1,1), nrow=1)
       }
 
-      df1 <- df
+      df1 <- df[combns[,1],]
       colnames(df1)[colnames(df1) != trial] <- paste0(colnames(df1)[colnames(df1) != trial], "_1")
-      df1$key <- combns[,1]
+      df1$key <- 1:nrow(df1)
 
-      df2 <- df
+      df2 <- df[combns[,2],]
       colnames(df2)[colnames(df2) != trial] <- paste0(colnames(df2)[colnames(df2) != trial], "_2")
       df2$key <- 1:nrow(df2)
 
@@ -48,7 +52,7 @@
       output
     }
 
-     do.call(rbind, lapply(split(df, df[, trial]), function(x) work(x, trial)))
+    do.call(rbind, lapply(split(df, df[, trial]), function(x) work(x, trial)))
   }
 
   pairwise(df, "trial")
@@ -56,10 +60,14 @@
 
 #+RESULTS:
 | trial | group_1 | n_1 | N_1 | group_2 | n_2 | N_2 |
-|-------+--------+----+----+--------+----+----|
-|     1 |      1 |  3 |  9 |      1 |  3 |  9 |
-|     1 |      2 |  4 | 10 |      1 |  3 |  9 |
-|     1 |      3 |  5 | 10 |      2 |  4 | 10 |
-|     2 |      1 |  8 | 15 |      1 |  8 | 15 |
-|     2 |      2 |  9 | 50 |      1 |  8 | 15 |
-|     3 |      2 |  9 | 50 |      2 |  9 | 50 |
+|-------+---------+-----+-----+---------+-----+-----|
+|     1 |       1 |   3 |   9 |       2 |   4 |  10 |
+|     1 |       1 |   3 |   9 |       3 |   5 |  10 |
+|     1 |       1 |   3 |   9 |       4 |   7 |  13 |
+|     1 |       2 |   4 |  10 |       3 |   5 |  10 |
+|     1 |       2 |   4 |  10 |       4 |   7 |  13 |
+|     1 |       3 |   5 |  10 |       4 |   7 |  13 |
+|     2 |       1 |   8 |  15 |       2 |   9 |  50 |
+|     2 |       1 |   8 |  15 |       3 |   4 |   7 |
+|     2 |       2 |   9 |  50 |       3 |   4 |   7 |
+|     3 |       2 |   9 |  50 |       2 |   9 |  50 |

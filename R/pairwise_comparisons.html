@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-16 Tue 20:33 -->
+<!-- 2020-06-16 Tue 20:54 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Get all the pairwise comparisons in a data set</title>
@@ -256,7 +256,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Get all the pairwise comparisons in a data set</h1>
-<table id="org9d32429" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgf794d6b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -299,6 +299,13 @@ for the JavaScript code in this tag.
 </tr>
 
 <tr>
+<td class="org-right">1</td>
+<td class="org-right">4</td>
+<td class="org-right">7</td>
+<td class="org-right">13</td>
+</tr>
+
+<tr>
 <td class="org-right">2</td>
 <td class="org-right">1</td>
 <td class="org-right">8</td>
@@ -313,6 +320,13 @@ for the JavaScript code in this tag.
 </tr>
 
 <tr>
+<td class="org-right">2</td>
+<td class="org-right">3</td>
+<td class="org-right">4</td>
+<td class="org-right">7</td>
+</tr>
+
+<tr>
 <td class="org-right">3</td>
 <td class="org-right">2</td>
 <td class="org-right">9</td>
@@ -320,6 +334,8 @@ for the JavaScript code in this tag.
 </tr>
 </tbody>
 </table>
+
+
 
 <div class="org-src-container">
 <pre class="src src-R">pairwise &lt;- function(df, trial) {
@@ -332,14 +348,14 @@ for the JavaScript code in this tag.
       combns &lt;- combns[!duplicated(combns), ]
       combns &lt;- combns[combns[,1] != combns[,2], , drop=FALSE]
     } else {
-      combns &lt;- matrix(1)
+      combns &lt;- matrix(c(1,1), nrow=1)
     }
 
-    df1 &lt;- df
+    df1 &lt;- df[combns[,1],]
     colnames(df1)[colnames(df1) != trial] &lt;- paste0(colnames(df1)[colnames(df1) != trial], "_1")
-    df1$key &lt;- combns[,1]
+    df1$key &lt;- 1:nrow(df1)
 
-    df2 &lt;- df
+    df2 &lt;- df[combns[,2],]
     colnames(df2)[colnames(df2) != trial] &lt;- paste0(colnames(df2)[colnames(df2) != trial], "_2")
     df2$key &lt;- 1:nrow(df2)
 
@@ -349,7 +365,7 @@ for the JavaScript code in this tag.
     output
   }
 
-   do.call(rbind, lapply(split(df, df[, trial]), function(x) work(x, trial)))
+  do.call(rbind, lapply(split(df, df[, trial]), function(x) work(x, trial)))
 }
 
 pairwise(df, "trial")
@@ -391,9 +407,29 @@ pairwise(df, "trial")
 <td class="org-right">1</td>
 <td class="org-right">3</td>
 <td class="org-right">9</td>
+<td class="org-right">2</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
 <td class="org-right">1</td>
 <td class="org-right">3</td>
 <td class="org-right">9</td>
+<td class="org-right">3</td>
+<td class="org-right">5</td>
+<td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">1</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
+<td class="org-right">4</td>
+<td class="org-right">7</td>
+<td class="org-right">13</td>
 </tr>
 
 <tr>
@@ -401,9 +437,19 @@ pairwise(df, "trial")
 <td class="org-right">2</td>
 <td class="org-right">4</td>
 <td class="org-right">10</td>
-<td class="org-right">1</td>
 <td class="org-right">3</td>
-<td class="org-right">9</td>
+<td class="org-right">5</td>
+<td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-right">2</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
+<td class="org-right">4</td>
+<td class="org-right">7</td>
+<td class="org-right">13</td>
 </tr>
 
 <tr>
@@ -411,9 +457,9 @@ pairwise(df, "trial")
 <td class="org-right">3</td>
 <td class="org-right">5</td>
 <td class="org-right">10</td>
-<td class="org-right">2</td>
 <td class="org-right">4</td>
-<td class="org-right">10</td>
+<td class="org-right">7</td>
+<td class="org-right">13</td>
 </tr>
 
 <tr>
@@ -421,9 +467,19 @@ pairwise(df, "trial")
 <td class="org-right">1</td>
 <td class="org-right">8</td>
 <td class="org-right">15</td>
+<td class="org-right">2</td>
+<td class="org-right">9</td>
+<td class="org-right">50</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
 <td class="org-right">1</td>
 <td class="org-right">8</td>
 <td class="org-right">15</td>
+<td class="org-right">3</td>
+<td class="org-right">4</td>
+<td class="org-right">7</td>
 </tr>
 
 <tr>
@@ -431,9 +487,9 @@ pairwise(df, "trial")
 <td class="org-right">2</td>
 <td class="org-right">9</td>
 <td class="org-right">50</td>
-<td class="org-right">1</td>
-<td class="org-right">8</td>
-<td class="org-right">15</td>
+<td class="org-right">3</td>
+<td class="org-right">4</td>
+<td class="org-right">7</td>
 </tr>
 
 <tr>
