@@ -18,16 +18,21 @@
 |     1 |     3 | 5 | 10 |
 |     2 |     1 | 8 | 15 |
 |     2 |     2 | 9 | 50 |
+|     3 |     2 | 9 | 50 |
 
 #+BEGIN_SRC R :var df=data :colnames yes :exports both
   pairwise <- function(df, trial) {
 
     work <- function(df, trial) {
 
-      combns <- expand.grid(df$group, df$group)
-      combns <- t(apply(combns, 1, sort)) # sort rows so the order is consistent
-      combns <- combns[!duplicated(combns), ]
-      combns <- combns[combns[,1] != combns[,2], , drop=FALSE]
+      if (nrow(df) > 1) {
+        combns <- expand.grid(df$group, df$group)
+        combns <- t(apply(combns, 1, sort)) # sort rows so the order is consistent
+        combns <- combns[!duplicated(combns), ]
+        combns <- combns[combns[,1] != combns[,2], , drop=FALSE]
+      } else {
+        combns <- matrix(1)
+      }
 
       df1 <- df
       colnames(df1)[colnames(df1) != trial] <- paste0(colnames(df1)[colnames(df1) != trial], "_1")
@@ -57,3 +62,4 @@
 |     1 |      3 |  5 | 10 |      2 |  4 | 10 |
 |     2 |      1 |  8 | 15 |      1 |  8 | 15 |
 |     2 |      2 |  9 | 50 |      1 |  8 | 15 |
+|     3 |      2 |  9 | 50 |      2 |  9 | 50 |
