@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-16 Tue 21:54 -->
+<!-- 2020-06-16 Tue 21:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Get all the pairwise comparisons in a data set</title>
@@ -256,7 +256,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Get all the pairwise comparisons in a data set</h1>
-<table id="orgb2fceeb" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgf81a271" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -342,6 +342,8 @@ for the JavaScript code in this tag.
 
   work &lt;- function(df, trial, group) {
 
+    df &lt;- df[order(df$group), ]
+
     if (nrow(df) &gt; 1) {
       combns &lt;- expand.grid(as.numeric(factor(df[, group])), as.numeric(factor(df[, group])))
       combns &lt;- t(apply(combns, 1, sort)) # sort rows so the order is consistent
@@ -405,12 +407,12 @@ pairwise(df, "trial", "group")
 <tbody>
 <tr>
 <td class="org-right">1</td>
-<td class="org-left">b</td>
-<td class="org-right">3</td>
-<td class="org-right">9</td>
 <td class="org-left">a</td>
 <td class="org-right">4</td>
 <td class="org-right">10</td>
+<td class="org-left">b</td>
+<td class="org-right">3</td>
+<td class="org-right">9</td>
 </tr>
 
 <tr>

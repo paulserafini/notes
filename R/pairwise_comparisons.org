@@ -28,6 +28,8 @@
   pairwise <- function(df, trial, group) {
 
     work <- function(df, trial, group) {
+    
+      df <- df[order(df$group), ]
 
       if (nrow(df) > 1) {
         combns <- expand.grid(as.numeric(factor(df[, group])), as.numeric(factor(df[, group])))
@@ -62,7 +64,7 @@
 #+RESULTS:
 | trial | group_1 | n_1 | N_1 | group_2 | n_2 | N_2 |
 |-------+---------+-----+-----+---------+-----+-----|
-|     1 | b       |   3 |   9 | a       |   4 |  10 |
+|     1 | a       |   4 |  10 | b       |   3 |   9 |
 |     1 | a       |   4 |  10 | c       |   5 |  10 |
 |     1 | a       |   4 |  10 | d       |   7 |  13 |
 |     1 | b       |   3 |   9 | c       |   5 |  10 |
