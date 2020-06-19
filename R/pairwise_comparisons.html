@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-18 Thu 20:54 -->
+<!-- 2020-06-18 Thu 22:15 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Get all the pairwise comparisons in a data set</title>
@@ -256,7 +256,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Get all the pairwise comparisons in a data set</h1>
-<table id="org5b2f7ff" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgd64f030" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -335,8 +335,6 @@ for the JavaScript code in this tag.
 </tbody>
 </table>
 
-
-
 <div class="org-src-container">
 <pre class="src src-R">pairwise &lt;- function(df, trial, group) {
 
@@ -344,9 +342,7 @@ for the JavaScript code in this tag.
 
     if (nrow(df) &gt; 1) {
       combns &lt;- expand.grid(as.numeric(factor(df[[group]])), as.numeric(factor(df[[group]])))
-      combns &lt;- t(apply(combns, 1, sort)) # sort rows so the order is consistent
-      combns &lt;- combns[!duplicated(combns), ]
-      combns &lt;- combns[combns[,1] != combns[, 2], , drop=FALSE]
+      combns &lt;- combns[combns[,1] &lt; combns[, 2], , drop=FALSE]
     } else {
       #combns &lt;- matrix(c(1, 1), nrow=1) # if you want to compare group 1 to itself
       return(NULL)
@@ -426,22 +422,22 @@ pairwise(df, "trial", "group")
 
 <tr>
 <td class="org-right">1</td>
-<td class="org-left">a</td>
-<td class="org-right">4</td>
-<td class="org-right">10</td>
-<td class="org-left">d</td>
-<td class="org-right">7</td>
-<td class="org-right">13</td>
-</tr>
-
-<tr>
-<td class="org-right">1</td>
 <td class="org-left">b</td>
 <td class="org-right">3</td>
 <td class="org-right">9</td>
 <td class="org-left">c</td>
 <td class="org-right">5</td>
 <td class="org-right">10</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">a</td>
+<td class="org-right">4</td>
+<td class="org-right">10</td>
+<td class="org-left">d</td>
+<td class="org-right">7</td>
+<td class="org-right">13</td>
 </tr>
 
 <tr>
