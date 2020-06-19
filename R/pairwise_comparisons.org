@@ -29,10 +29,10 @@
 
     work <- function(df, trial, group) {
     
-      df <- df[order(df$group), ]
+      df <- df[order(df[[group]]), ]
 
       if (nrow(df) > 1) {
-        combns <- expand.grid(as.numeric(factor(df[, group])), as.numeric(factor(df[, group])))
+        combns <- expand.grid(as.numeric(factor(df[[group]])), as.numeric(factor(df[[group]])))
         combns <- t(apply(combns, 1, sort)) # sort rows so the order is consistent
         combns <- combns[!duplicated(combns), ]
         combns <- combns[combns[,1] != combns[,2], , drop=FALSE]
