@@ -28,24 +28,22 @@
   pairwise <- function(df, trial, group) {
 
     work <- function(df, trial, group) {
-    
-      df <- df[order(df[[group]]), ]
 
       if (nrow(df) > 1) {
         combns <- expand.grid(as.numeric(factor(df[[group]])), as.numeric(factor(df[[group]])))
         combns <- t(apply(combns, 1, sort)) # sort rows so the order is consistent
         combns <- combns[!duplicated(combns), ]
-        combns <- combns[combns[,1] != combns[,2], , drop=FALSE]
+        combns <- combns[combns[,1] != combns[, 2], , drop=FALSE]
       } else {
-        #combns <- matrix(c(1,1), nrow=1) # if you want to compare group 1 to itself
+        #combns <- matrix(c(1, 1), nrow=1) # if you want to compare group 1 to itself
         return(NULL)
       }
 
-      df1 <- df[combns[,1],]
+      df1 <- df[combns[, 1], ]
       colnames(df1)[colnames(df1) != trial] <- paste0(colnames(df1)[colnames(df1) != trial], "_1")
       df1$key <- 1:nrow(df1)
 
-      df2 <- df[combns[,2],]
+      df2 <- df[combns[, 2], ]
       colnames(df2)[colnames(df2) != trial] <- paste0(colnames(df2)[colnames(df2) != trial], "_2")
       df2$key <- 1:nrow(df2)
 
@@ -55,7 +53,8 @@
       output
     }
 
-    do.call(rbind, lapply(split(df, df[, trial]), function(x) work(x, trial, group)))
+    do.call(rbind, lapply(split(df, df[, trial]),
+                          function(x) work(x[order(x[, group]), ], trial, group)))
   }
 
   pairwise(df, "trial", "group")
