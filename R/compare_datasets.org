@@ -39,7 +39,7 @@
        x2 <- x[,2]
        x1[is.na(x1) & is.na(x2)] <- "NR"
        x1[!is.na(x2) & is.na(x1)] <- x2[!is.na(x2) & is.na(x1)]
-       x2[!is.na(x1) & is.na(x2)] <- x1[!is.na(x1) & is.na(x2)]
+       x2[!is.na(x1) & is.na(x2)] <- x1[!is.na(x1) & is.na(x2)] # avoid error
        x1[x1!=x2] <- paste(x1[x1!=x2], "~", x2[x1!=x2])
        x1
   }
@@ -102,7 +102,7 @@ If you want to merge multiple datasets, you can do something like the below. How
        x2 <- x[,2]
        x1[is.na(x1) & is.na(x2)] <- "NR"
        x1[!is.na(x2) & is.na(x1)] <- x2[!is.na(x2) & is.na(x1)]
-       x2[!is.na(x1) & is.na(x2)] <- x1[!is.na(x1) & is.na(x2)]
+       x2[!is.na(x1) & is.na(x2)] <- x1[!is.na(x1) & is.na(x2)] # avoid error
        x1[x1!=x2] <- paste(x1[x1!=x2], "~", x2[x1!=x2])
        x1
   }

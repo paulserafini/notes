@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-15 Fri 22:17 -->
+<!-- 2020-06-19 Fri 21:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Compare two datsets</title>
@@ -256,7 +256,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Compare two datsets</h1>
-<table id="orgd18f514" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgaf0bd5c" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -335,7 +335,7 @@ for the JavaScript code in this tag.
 </tbody>
 </table>
 
-<table id="orgb28cfc9" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orge185b0b" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -421,7 +421,7 @@ for the JavaScript code in this tag.
      x2 &lt;- x[,2]
      x1[is.na(x1) &amp; is.na(x2)] &lt;- "NR"
      x1[!is.na(x2) &amp; is.na(x1)] &lt;- x2[!is.na(x2) &amp; is.na(x1)]
-     x2[!is.na(x1) &amp; is.na(x2)] &lt;- x1[!is.na(x1) &amp; is.na(x2)]
+     x2[!is.na(x1) &amp; is.na(x2)] &lt;- x1[!is.na(x1) &amp; is.na(x2)] # avoid error
      x1[x1!=x2] &lt;- paste(x1[x1!=x2], "~", x2[x1!=x2])
      x1
 }
@@ -593,7 +593,7 @@ If you want to merge multiple datasets, you can do something like the below. How
      x2 &lt;- x[,2]
      x1[is.na(x1) &amp; is.na(x2)] &lt;- "NR"
      x1[!is.na(x2) &amp; is.na(x1)] &lt;- x2[!is.na(x2) &amp; is.na(x1)]
-     x2[!is.na(x1) &amp; is.na(x2)] &lt;- x1[!is.na(x1) &amp; is.na(x2)]
+     x2[!is.na(x1) &amp; is.na(x2)] &lt;- x1[!is.na(x1) &amp; is.na(x2)] # avoid error
      x1[x1!=x2] &lt;- paste(x1[x1!=x2], "~", x2[x1!=x2])
      x1
 }
