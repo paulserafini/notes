@@ -50,3 +50,27 @@ The idea is to
   3. Use ~mutate~ to convert the streak count (~num~) into the proper format (~[,i]~)
   4. Concatenate ~t~ and ~num~ into a single column (~VarT~)
   5. Use ~spread~ to turn ~VarT~ into the header
+
+You can also do this in base R:
+
+#+BEGIN_SRC R
+  dfToWinbugs <- function(trial) {
+    n <- nrow(trial)
+    names <- rep(colnames(trial)[-1], each=n)
+    names <- paste0(names, "[,", 1:n, "]")
+    names <- c("id", names)
+
+    if (all(colnames(trial) %in% c("id", "t", "n", "r"))) {
+      trial <- trial[order(trial$id, trial$t), ]
+      trial <- cbind(trial$id[1], t(trial$t), t(trial$n), t(trial$r))
+    } else if (all(colnames(trial) %in% c("id", "t", "y", "se"))) {
+      trial <- trial[order(trial$id, trial$t), ]
+      trial <- cbind(trial$id[1], t(trial$t), t(trial$y), t(trial$se))
+    } else {
+      stop("Invalid column names.")
+    }
+
+    colnames(trial) <- names
+    trial
+  }
+#+END_SRC

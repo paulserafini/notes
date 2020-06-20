@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-01 Wed 12:51 -->
+<!-- 2020-06-19 Fri 22:08 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Convert data into WinBUGS format</title>
@@ -161,6 +161,19 @@
   .footdef  { margin-bottom: 1em; }
   .figure { padding: 1em; }
   .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
   .inlinetask {
     padding: 10px;
     border: 2px solid gray;
@@ -247,7 +260,7 @@ for the JavaScript code in this tag.
 Suppose you have a data table such as 
 </p>
 
-<table id="org687896d" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="orgd618ac6" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -383,6 +396,33 @@ The idea is to
 <li>Concatenate <code>t</code> and <code>num</code> into a single column (<code>VarT</code>)</li>
 <li>Use <code>spread</code> to turn <code>VarT</code> into the header</li>
 </ol>
+
+<p>
+You can also do this in base R:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">dfToWinbugs &lt;- function(trial) {
+  n &lt;- nrow(trial)
+  names &lt;- rep(colnames(trial)[-1], each=n)
+  names &lt;- paste0(names, "[,", 1:n, "]")
+  names &lt;- c("id", names)
+
+  if (all(colnames(trial) %in% c("id", "t", "n", "r"))) {
+    trial &lt;- trial[order(trial$id, trial$t), ]
+    trial &lt;- cbind(trial$id[1], t(trial$t), t(trial$n), t(trial$r))
+  } else if (all(colnames(trial) %in% c("id", "t", "y", "se"))) {
+    trial &lt;- trial[order(trial$id, trial$t), ]
+    trial &lt;- cbind(trial$id[1], t(trial$t), t(trial$y), t(trial$se))
+  } else {
+    stop("Invalid column names.")
+  }
+
+  colnames(trial) &lt;- names
+  trial
+}
+</pre>
+</div>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>
