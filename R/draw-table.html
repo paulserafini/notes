@@ -6,7 +6,7 @@
 <!-- 2020-06-27 Sat 17:56 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>R</title>
+<title>Draw a Table in R</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,30 +255,68 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">R</h1>
-<ul class="org-ul">
-<li><a href="./annotate-forestplot.html">Add an interpretation label to the output of the forestplot function</a></li>
-<li><a href="./base_block_plots.html">Block graphics in base R</a></li>
-<li><a href="./base_forestplot.html">Create a forest plot table using base R graphics</a></li>
-<li><a href="./compare_datasets.html">Compare two datsets</a></li>
-<li><a href="./draw-table.html">Draw a Table in R</a></li>
-<li><a href="./draw_distributions.html">Draw and label theoretical distributions</a></li>
-<li><a href="./ggforestplot.html">Create a forest plot table in ggplot</a></li>
-<li><a href="./kolmogorov_smirnov.html">Plot the Kolmogorov-Smirnov</a></li>
-<li><a href="./logarithmic-axis-ticks.html">Generate logarithmic axis ticks</a></li>
-<li><a href="./math-notation-in-R.html">Use mathematical notation in R</a></li>
-<li><a href="./median_polish.html">Median Polish</a></li>
-<li><a href="./misc.html">Miscellaneous</a></li>
-<li><a href="./network_diagrams.html">Network diagrams</a></li>
-<li><a href="./pairwise_comparisons.html">Get all the pairwise comparisons in a data set</a></li>
-<li><a href="./pgf_forest.html">Forest tables in pgfplots through R</a></li>
-<li><a href="./pool-repeated-measures.html">Pooling repeated measures</a></li>
-<li><a href="./randomly-choose-an-outcome.html">Randomly choose an outcome</a></li>
-<li><a href="./round-multiple-variables.html">Round multiple variables simultaneously</a></li>
-<li><a href="./summarise_metanalyses.html">Create a summary table of meta-analyses on several outcomes</a></li>
-<li><a href="./text-with-an-arrow-above-it.html">Draw text with an arrow above it</a></li>
-<li><a href="./winbugs.html">Convert data into WinBUGS format</a></li>
-</ul>
+<h1 class="title">Draw a Table in R</h1>
+<div class="org-src-container">
+<pre class="src src-R">tableFromMatrix &lt;- function(mat) {
+
+    library(grid)
+    library(gridExtra)
+    library(gtable)
+
+    theme &lt;- ttheme_minimal(core = list(fg_params = list(hjust=0, x=0.1, fontsize=9)),
+			    rowhead = list(fg_params = list(hjust=0, x=0.1, fontsize=9, fontface="plain")),
+			    colhead = list(fg_params = list(fontsize=9, fontface="plain")))
+
+    g &lt;- tableGrob(mat, theme=theme)
+
+    # Top rule
+    g &lt;- gtable_add_grob(g, grobs = segmentsGrob(
+				x0 = unit(1,"npc"),
+				y0 = unit(1,"npc"),
+				x1 = unit(0,"npc"),
+				y1 = unit(1,"npc"),
+				gp = gpar(lwd = 4)),
+			 t = 1, b = 1, l = 1, r = ncol(g))
+
+    # Header rule
+    g &lt;- gtable_add_grob(g,
+			 grobs = segmentsGrob(
+			     x0 = unit(1,"npc"),
+			     y0 = unit(1,"npc"),
+			     x1 = unit(0,"npc"),
+			     y1 = unit(1,"npc"),
+			     gp = gpar(lwd = 2)),
+			 t = 2, b = 2, l = 1, r = ncol(g))
+
+    # Bottom rule
+    # https://stackoverflow.com/a/47908047
+    g &lt;- gtable_add_grob(g,
+			 grobs = segmentsGrob(
+			     x0 = unit(0,"npc"),
+			     y0 = unit(0,"npc"),
+			     x1 = unit(1,"npc"),
+			     y1 = unit(0,"npc"),
+			     gp = gpar(lwd = 4)),
+			 t = nrow(g), b = nrow(g), l = 1, r = ncol(g))
+
+    grid.newpage() # Reset the plotting device
+    grid.draw(g)
+
+}
+
+myData &lt;- matrix((1:15), nrow=5, ncol=3)
+colnames(myData) &lt;- c("Group A", "Group B", "Group C")
+rownames(myData) &lt;- c("a", "b", "c", "d", "e")
+
+tableFromMatrix(myData)
+</pre>
+</div>
+
+<div class="figure">
+<p><object type="image/svg+xml" data="./img/table.svg" class="org-svg">
+Sorry, your browser does not support SVG.</object>
+</p>
+</div>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>
