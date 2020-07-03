@@ -54,23 +54,38 @@ The idea is to
 You can also do this in base R:
 
 #+BEGIN_SRC R
-  dfToWinbugs <- function(trial) {
-    n <- nrow(trial)
-    names <- rep(colnames(trial)[-1], each=n)
-    names <- paste0(names, "[,", 1:n, "]")
-    names <- c("id", names)
+  df_to_winbugs <- function(df, id="id", t="t") {
 
-    if (all(colnames(trial) %in% c("id", "t", "n", "r"))) {
-      trial <- trial[order(trial$id, trial$t), ]
-      trial <- cbind(trial$id[1], t(trial$t), t(trial$n), t(trial$r))
-    } else if (all(colnames(trial) %in% c("id", "t", "y", "se"))) {
-      trial <- trial[order(trial$id, trial$t), ]
-      trial <- cbind(trial$id[1], t(trial$t), t(trial$y), t(trial$se))
-    } else {
-      stop("Invalid column names.")
+    work <- function(unformatted, id, t) {
+      n <- nrow(unformatted)
+      i <- which(colnames(unformatted) == id)
+      names <- rep(colnames(unformatted)[-i], each=n)
+      names <- paste0(names, "[,", 1:n, "]")
+      names <- c(id, names)
+
+      unformatted <- unformatted[order(unformatted[[id]], unformatted[[t]]), ]
+      formatted <- do.call(cbind, lapply(unformatted[, -i], function(i) t(i)))
+      formatted <- cbind(unformatted[[id]][1], formatted)
+      colnames(formatted) <- names
+
+      formatted
     }
 
-    colnames(trial) <- names
-    trial
+    separate <- lapply(split(df, df[[id]]), function(i) work(i, id, t))
+    combined <- Reduce(function(x, y) merge(x, y, all=TRUE), separate)
+    combined[is.na(combined)] <- "NA"
+    sort_by_regex(combined, c(paste0("^", id, "$"),
+                              paste0("^", t, "\\["),
+                              "^y\\[", "^se\\[", "^n\\[", "^r\\["))
+
+  }
+
+  sort_by_regex <- function(dat, regex, append=TRUE) {
+    elts <- lapply(regex, function(r) dat[, grepl(r, colnames(dat)), drop=FALSE])
+    sorted <- do.call(cbind, elts)
+    if (append) {
+      cbind(sorted,
+            dat[, !colnames(dat) %in% colnames(sorted)])
+    }
   }
 #+END_SRC

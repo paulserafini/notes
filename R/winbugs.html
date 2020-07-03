@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-06-19 Fri 22:08 -->
+<!-- 2020-07-02 Thu 21:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Convert data into WinBUGS format</title>
@@ -260,7 +260,7 @@ for the JavaScript code in this tag.
 Suppose you have a data table such as 
 </p>
 
-<table id="orgd618ac6" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<table id="org2f2f2b5" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
 <colgroup>
@@ -402,24 +402,39 @@ You can also do this in base R:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-R">dfToWinbugs &lt;- function(trial) {
-  n &lt;- nrow(trial)
-  names &lt;- rep(colnames(trial)[-1], each=n)
-  names &lt;- paste0(names, "[,", 1:n, "]")
-  names &lt;- c("id", names)
+<pre class="src src-R">df_to_winbugs &lt;- function(df, id="id", t="t") {
 
-  if (all(colnames(trial) %in% c("id", "t", "n", "r"))) {
-    trial &lt;- trial[order(trial$id, trial$t), ]
-    trial &lt;- cbind(trial$id[1], t(trial$t), t(trial$n), t(trial$r))
-  } else if (all(colnames(trial) %in% c("id", "t", "y", "se"))) {
-    trial &lt;- trial[order(trial$id, trial$t), ]
-    trial &lt;- cbind(trial$id[1], t(trial$t), t(trial$y), t(trial$se))
-  } else {
-    stop("Invalid column names.")
+  work &lt;- function(unformatted, id, t) {
+    n &lt;- nrow(unformatted)
+    i &lt;- which(colnames(unformatted) == id)
+    names &lt;- rep(colnames(unformatted)[-i], each=n)
+    names &lt;- paste0(names, "[,", 1:n, "]")
+    names &lt;- c(id, names)
+
+    unformatted &lt;- unformatted[order(unformatted[[id]], unformatted[[t]]), ]
+    formatted &lt;- do.call(cbind, lapply(unformatted[, -i], function(i) t(i)))
+    formatted &lt;- cbind(unformatted[[id]][1], formatted)
+    colnames(formatted) &lt;- names
+
+    formatted
   }
 
-  colnames(trial) &lt;- names
-  trial
+  separate &lt;- lapply(split(df, df[[id]]), function(i) work(i, id, t))
+  combined &lt;- Reduce(function(x, y) merge(x, y, all=TRUE), separate)
+  combined[is.na(combined)] &lt;- "NA"
+  sort_by_regex(combined, c(paste0("^", id, "$"),
+			    paste0("^", t, "\\["),
+			    "^y\\[", "^se\\[", "^n\\[", "^r\\["))
+
+}
+
+sort_by_regex &lt;- function(dat, regex, append=TRUE) {
+  elts &lt;- lapply(regex, function(r) dat[, grepl(r, colnames(dat)), drop=FALSE])
+  sorted &lt;- do.call(cbind, elts)
+  if (append) {
+    cbind(sorted,
+	  dat[, !colnames(dat) %in% colnames(sorted)])
+  }
 }
 </pre>
 </div>
