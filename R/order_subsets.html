@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-07-11 Sat 10:31 -->
+<!-- 2020-07-11 Sat 11:45 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Order subsets of columns</title>
@@ -256,23 +256,152 @@ for the JavaScript code in this tag.
 </div>
 <div id="content">
 <h1 class="title">Order subsets of columns</h1>
+<p>
+Recently I was working on a dataset with the following structure:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">Outcome 1</td>
+<td class="org-left">Outcome 1</td>
+<td class="org-left">Outcome 1</td>
+<td class="org-left">Outcome 2</td>
+<td class="org-left">Outcome 2</td>
+<td class="org-left">Outcome 2</td>
+</tr>
+
+<tr>
+<td class="org-left">Mean</td>
+<td class="org-left">N</td>
+<td class="org-left">SD</td>
+<td class="org-left">Mean</td>
+<td class="org-left">N</td>
+<td class="org-left">SD</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+I wanted to sort the second row within each category in the first row.
+My general approach was to subset the data according to the first row, then reorder it based on the second row, then reassemble the subsets.
+Because the order I wanted was not alphabetical (I wanted "N", then "Mean", then "SD"), I chose to use regular expressions to order the subsets.
+</p>
+
+<p>
+The <code>order_subsets</code> function is given the dataset (<code>dat</code>), as well as the row indices for the top level row (<code>row1</code>) and the lower level row (<code>row2</code>).
+To start, I
+</p>
+
+<ol class="org-ol">
+<li>Create a vector of unique elements in the top level row</li>
+<li>Initialize an empty list to hold each subset after I reorder it</li>
+<li>Define a list of regular expressions in the order that I want to impose on the subsets</li>
+</ol>
+
 <div class="org-src-container">
-<pre class="src src-R">order_by_regex &lt;- function(x, regex) {
+<pre class="src src-R">cats &lt;- unique(dat[row1, ])
+subsets &lt;- list()
+regex_seq &lt;- c("_N$", "_Mean$", "_SD$")
+</pre>
+</div>
 
-    matched_indices &lt;- sapply(regex, function(i) which(grepl(i, x)))
-    matched_indices &lt;- matched_indices[lapply(matched_indices,length) &gt; 0]
-    all_indices &lt;- 1:length(x)
+<p>
+Then, I iterate over the indices (<code>i</code>) from 1 to the number of top level categories.
+For each iteration, I
+</p>
+<ol class="org-ol">
+<li>Subset the columns where the value in the top-level row is equal to the i<sup>th</sup> category</li>
+<li>Reorder the subset's indices according to the regular expression sequence I defined above</li>
+<li>Reorder the subset using the ordered indices, and add it to the empty list I initialized above</li>
+</ol>
 
-    if (length(matched_indices) &gt; 0) {
-	leftover &lt;- all_indices[!all_indices %in% matched_indices]
-	ordered_indices &lt;- c(matched_indices, leftover)
-    } else {
-	ordered_indices &lt;- all_indices
-    }
-    ordered_indices
+<p>
+In step 1 I use the <code>drop=FALSE</code> argument to ensure that, if the subset is a single column, it isn't reduce to a vector.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">for (i in seq_along(cats)) {
+    subset &lt;- dat[, dat[row1, ] == cats[i], drop=FALSE]
+    indices &lt;- order_by_regex(subset[row2, ], regex_seq)
+    subsets[[i]] &lt;- subset[, indices]
 }
+</pre>
+</div>
 
-order_subsets &lt;- function(dat, row1, row2) {
+<p>
+Reordering the indices (the second step) is accomplished by another function, <code>order_by_regex</code>, which is given a vector containing the second row of the current subset (<code>row2</code>) and a vector of regular expressions (<code>regex</code>).
+</p>
+
+<p>
+The first step in this function is to
+</p>
+
+<ol class="org-ol">
+<li>Create a list containing one vector of indices for each regular expression, the indices corresponding to the elements of the second row with a match that regular expression</li>
+<li>Remove from the list any empty vectors, to prevent errors later on</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-R">matched_indices &lt;- sapply(regex, function(i) which(grepl(i, row2)))
+matched_indices &lt;- matched_indices[lapply(matched_indices,length) &gt; 0]
+</pre>
+</div>
+
+<p>
+The next step is to
+</p>
+
+<ol class="org-ol">
+<li>Create a vector of all the indices of the second row</li>
+<li>Create a list containing the index of every element not matched by a regular expression</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-R">all_indices &lt;- 1:length(row2)
+leftover &lt;- all_indices[!all_indices %in% matched_indices]
+</pre>
+</div>
+
+<p>
+Then, I combine the list of matched and unmatched indices and return it. I use unlist to ensure that the result is a vector.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">unlist(c(matched_indices, leftover))
+</pre>
+</div>
+
+<p>
+Returning to the <code>order_subsets</code> function, after this process has been applied to every top-level category I reassemble the data frame and return it.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">do.call(cbind, subsets)
+</pre>
+</div>
+
+<p>
+The code in its entirety is presented below.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-R">order_subsets &lt;- function(dat, row1, row2) {
 
     cats &lt;- unique(dat[row1, ])
     subsets &lt;- list()
@@ -285,6 +414,17 @@ order_subsets &lt;- function(dat, row1, row2) {
     }
 
     do.call(cbind, subsets)
+}
+
+order_by_regex &lt;- function(row2, regex) {
+
+    matched_indices &lt;- sapply(regex, function(i) which(grepl(i, row2)))
+    matched_indices &lt;- matched_indices[lapply(matched_indices,length) &gt; 0]
+
+    all_indices &lt;- 1:length(row2)
+    leftover &lt;- all_indices[!all_indices %in% matched_indices]
+
+    unlist(c(matched_indices, leftover))
 }
 
 row1 &lt;- c("one", "two", "a", "a", "a", "b", "b", "b")

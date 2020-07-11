@@ -8,22 +8,81 @@
 
 #+TITLE: Order subsets of columns
 
-#+BEGIN_SRC R :exports both :results output
-  order_by_regex <- function(x, regex) {
+Recently I was working on a dataset with the following structure:
 
-      matched_indices <- sapply(regex, function(i) which(grepl(i, x)))
-      matched_indices <- matched_indices[lapply(matched_indices,length) > 0]
-      all_indices <- 1:length(x)
+| Outcome 1 | Outcome 1 | Outcome 1 | Outcome 2 | Outcome 2 | Outcome 2 |
+| Mean      | N         | SD        | Mean      | N         | SD        |
 
-      if (length(matched_indices) > 0) {
-          leftover <- all_indices[!all_indices %in% matched_indices]
-          ordered_indices <- c(matched_indices, leftover)
-      } else {
-          ordered_indices <- all_indices
-      }
-      ordered_indices
+I wanted to sort the second row within each category in the first row.
+My general approach was to subset the data according to the first row, then reorder it based on the second row, then reassemble the subsets.
+Because the order I wanted was not alphabetical (I wanted "N", then "Mean", then "SD"), I chose to use regular expressions to order the subsets.
+
+The ~order_subsets~ function is given the dataset (~dat~), as well as the row indices for the top level row (~row1~) and the lower level row (~row2~).
+To start, I
+
+1. Create a vector of unique elements in the top level row
+2. Initialize an empty list to hold each subset after I reorder it
+3. Define a list of regular expressions in the order that I want to impose on the subsets
+
+#+BEGIN_SRC R
+      cats <- unique(dat[row1, ])
+      subsets <- list()
+      regex_seq <- c("_N$", "_Mean$", "_SD$")
+#+END_SRC
+
+Then, I iterate over the indices (~i~) from 1 to the number of top level categories.
+For each iteration, I
+1. Subset the columns where the value in the top-level row is equal to the i^{th} category
+2. Reorder the subset's indices according to the regular expression sequence I defined above
+3. Reorder the subset using the ordered indices, and add it to the empty list I initialized above
+
+In step 1 I use the ~drop=FALSE~ argument to ensure that, if the subset is a single column, it isn't reduce to a vector.
+
+#+BEGIN_SRC R
+  for (i in seq_along(cats)) {
+      subset <- dat[, dat[row1, ] == cats[i], drop=FALSE]
+      indices <- order_by_regex(subset[row2, ], regex_seq)
+      subsets[[i]] <- subset[, indices]
   }
+#+END_SRC
 
+Reordering the indices (the second step) is accomplished by another function, ~order_by_regex~, which is given a vector containing the second row of the current subset (~row2~) and a vector of regular expressions (~regex~).
+
+The first step in this function is to
+
+1. Create a list containing one vector of indices for each regular expression, the indices corresponding to the elements of the second row with a match that regular expression
+2. Remove from the list any empty vectors, to prevent errors later on
+
+#+BEGIN_SRC R
+      matched_indices <- sapply(regex, function(i) which(grepl(i, row2)))
+      matched_indices <- matched_indices[lapply(matched_indices,length) > 0]
+#+END_SRC
+
+The next step is to
+
+1. Create a vector of all the indices of the second row
+2. Create a list containing the index of every element not matched by a regular expression
+
+#+BEGIN_SRC R
+      all_indices <- 1:length(row2)
+      leftover <- all_indices[!all_indices %in% matched_indices]
+#+END_SRC
+
+Then, I combine the list of matched and unmatched indices and return it. I use unlist to ensure that the result is a vector.
+
+#+BEGIN_SRC R
+unlist(c(matched_indices, leftover))
+#+END_SRC
+
+Returning to the ~order_subsets~ function, after this process has been applied to every top-level category I reassemble the data frame and return it.
+
+#+BEGIN_SRC R
+do.call(cbind, subsets)
+#+END_SRC
+
+The code in its entirety is presented below.
+
+#+BEGIN_SRC R :exports both :results output
   order_subsets <- function(dat, row1, row2) {
 
       cats <- unique(dat[row1, ])
@@ -37,6 +96,17 @@
       }
 
       do.call(cbind, subsets)
+  }
+
+  order_by_regex <- function(row2, regex) {
+
+      matched_indices <- sapply(regex, function(i) which(grepl(i, row2)))
+      matched_indices <- matched_indices[lapply(matched_indices,length) > 0]
+
+      all_indices <- 1:length(row2)
+      leftover <- all_indices[!all_indices %in% matched_indices]
+
+      unlist(c(matched_indices, leftover))
   }
 
   row1 <- c("one", "two", "a", "a", "a", "b", "b", "b")
