@@ -1,0 +1,51 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Order subsets of columns
+
+#+BEGIN_SRC R :exports both :results output
+  order_by_regex <- function(x, regex) {
+
+      matched_indices <- sapply(regex, function(i) which(grepl(i, x)))
+      matched_indices <- matched_indices[lapply(matched_indices,length) > 0]
+      all_indices <- 1:length(x)
+
+      if (length(matched_indices) > 0) {
+          leftover <- all_indices[!all_indices %in% matched_indices]
+          ordered_indices <- c(matched_indices, leftover)
+      } else {
+          ordered_indices <- all_indices
+      }
+      ordered_indices
+  }
+
+  order_subsets <- function(dat, row1, row2) {
+
+      cats <- unique(dat[row1, ])
+      subsets <- list()
+      regex_seq <- c("_N$", "_Mean$", "_SD$")
+
+      for (i in seq_along(cats)) {
+          subset <- dat[, dat[row1, ] == cats[i], drop=FALSE]
+          indices <- order_by_regex(subset[row2, ], regex_seq)
+          subsets[[i]] <- subset[, indices]
+      }
+
+      do.call(cbind, subsets)
+  }
+
+  row1 <- c("one", "two", "a", "a", "a", "b", "b", "b")
+  row2 <- c("a", "c", "c_SD", "b_Mean", "a_N", "b_N", "a_SD", "c_Mean")
+  dat <- rbind(row1, row2)
+
+  order_subsets(dat, 1, 2)
+#+END_SRC
+
+#+RESULTS:
+| one | two | a  | a     | a   | b  | b     | b   |
+| a   | c   | a_N | b_Mean | c_SD | b_N | c_Mean | a_SD |

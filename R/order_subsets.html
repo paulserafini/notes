@@ -6,7 +6,7 @@
 <!-- 2020-07-11 Sat 10:31 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>R</title>
+<title>Order subsets of columns</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -255,31 +255,51 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">R</h1>
-<ul class="org-ul">
-<li><a href="./annotate-forestplot.html">Add an interpretation label to the output of the forestplot function</a></li>
-<li><a href="./base_block_plots.html">Block graphics in base R</a></li>
-<li><a href="./base_forestplot.html">Create a forest plot table using base R graphics</a></li>
-<li><a href="./compare_datasets.html">Compare two datsets</a></li>
-<li><a href="./draw-table.html">Draw a Table in R</a></li>
-<li><a href="./draw_distributions.html">Draw and label theoretical distributions</a></li>
-<li><a href="./ggforestplot.html">Create a forest plot table in ggplot</a></li>
-<li><a href="./kolmogorov_smirnov.html">Plot the Kolmogorov-Smirnov</a></li>
-<li><a href="./logarithmic-axis-ticks.html">Generate logarithmic axis ticks</a></li>
-<li><a href="./math-notation-in-R.html">Use mathematical notation in R</a></li>
-<li><a href="./median_polish.html">Median Polish</a></li>
-<li><a href="./misc.html">Miscellaneous</a></li>
-<li><a href="./network_diagrams.html">Network diagrams</a></li>
-<li><a href="./order_subsets.html">Order subsets of columns</a></li>
-<li><a href="./pairwise_comparisons.html">Get all the pairwise comparisons in a data set</a></li>
-<li><a href="./pgf_forest.html">Forest tables in pgfplots through R</a></li>
-<li><a href="./pool-repeated-measures.html">Pooling repeated measures</a></li>
-<li><a href="./randomly-choose-an-outcome.html">Randomly choose an outcome</a></li>
-<li><a href="./round-multiple-variables.html">Round multiple variables simultaneously</a></li>
-<li><a href="./summarise_metanalyses.html">Create a summary table of meta-analyses on several outcomes</a></li>
-<li><a href="./text-with-an-arrow-above-it.html">Draw text with an arrow above it</a></li>
-<li><a href="./winbugs.html">Convert data into WinBUGS format</a></li>
-</ul>
+<h1 class="title">Order subsets of columns</h1>
+<div class="org-src-container">
+<pre class="src src-R">order_by_regex &lt;- function(x, regex) {
+
+    matched_indices &lt;- sapply(regex, function(i) which(grepl(i, x)))
+    matched_indices &lt;- matched_indices[lapply(matched_indices,length) &gt; 0]
+    all_indices &lt;- 1:length(x)
+
+    if (length(matched_indices) &gt; 0) {
+	leftover &lt;- all_indices[!all_indices %in% matched_indices]
+	ordered_indices &lt;- c(matched_indices, leftover)
+    } else {
+	ordered_indices &lt;- all_indices
+    }
+    ordered_indices
+}
+
+order_subsets &lt;- function(dat, row1, row2) {
+
+    cats &lt;- unique(dat[row1, ])
+    subsets &lt;- list()
+    regex_seq &lt;- c("_N$", "_Mean$", "_SD$")
+
+    for (i in seq_along(cats)) {
+	subset &lt;- dat[, dat[row1, ] == cats[i], drop=FALSE]
+	indices &lt;- order_by_regex(subset[row2, ], regex_seq)
+	subsets[[i]] &lt;- subset[, indices]
+    }
+
+    do.call(cbind, subsets)
+}
+
+row1 &lt;- c("one", "two", "a", "a", "a", "b", "b", "b")
+row2 &lt;- c("a", "c", "c_SD", "b_Mean", "a_N", "b_N", "a_SD", "c_Mean")
+dat &lt;- rbind(row1, row2)
+
+order_subsets(dat, 1, 2)
+</pre>
+</div>
+
+<pre class="example">
+     [,1]  [,2]  [,3]  [,4]     [,5]   [,6]  [,7]     [,8]  
+row1 "one" "two" "a"   "a"      "a"    "b"   "b"      "b"   
+row2 "a"   "c"   "a_N" "b_Mean" "c_SD" "b_N" "c_Mean" "a_SD"
+</pre>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>
