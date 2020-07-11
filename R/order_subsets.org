@@ -50,7 +50,7 @@ Reordering the indices (the second step) is accomplished by another function, ~o
 
 The first step in this function is to
 
-1. Create a list containing one vector of indices for each regular expression, the indices corresponding to the elements of the second row with a match that regular expression
+1. Create a list containing one vector of indices for each regular expression, the indices corresponding to the elements of the second row with a match for that regular expression
 2. Remove from the list any empty vectors, to prevent errors later on
 
 #+BEGIN_SRC R
