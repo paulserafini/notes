@@ -8,7 +8,7 @@
 
 #+TITLE: Order subsets of columns
 
-Recently I was working on a dataset with the following structure:
+I recently worked with a dataset with the following structure:
 
 | Outcome 1 | Outcome 1 | Outcome 1 | Outcome 2 | Outcome 2 | Outcome 2 |
 | Mean      | N         | SD        | Mean      | N         | SD        |
