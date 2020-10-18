@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-10-18 Sun 11:34 -->
+<!-- 2020-10-18 Sun 11:33 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Statistics</title>
+<title>Logistic Regression</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Paul Serafini" />
 <style type="text/css">
@@ -240,6 +240,28 @@ for the JavaScript code in this tag.
  }
 /*]]>*///-->
 </script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="preamble" class="status">
@@ -255,12 +277,130 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="content">
-<h1 class="title">Statistics</h1>
-<ul class="org-ul">
-<li><a href="./dependent-mean-change.html">Calculate the change in the daily average</a></li>
-<li><a href="./logistic-regression.html">Logistic Regression</a></li>
-<li><a href="./plot-ratios-on-a-log-scale.html">Ratios should be plotted on a log scale</a></li>
+<h1 class="title">Logistic Regression</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgb66875c">1. Introduction</a></li>
+<li><a href="#org5c31aff">2. Zero-predictor model</a></li>
+<li><a href="#org0200c28">3. Single-predictor model</a></li>
+<li><a href="#org8ee75c7">4. N-predictor model</a></li>
 </ul>
+</div>
+</div>
+
+<div id="outline-container-orgb66875c" class="outline-2">
+<h2 id="orgb66875c"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Suppose we have a dichotomous outcome variable, \(Y = (0, 1)\). Let \(P(Y = i)\) denote the probability that \(Y\) will take the value \(i\), and \(O(Y = i)\) denote the odds that \(Y\) will take the value \(i\), where
+</p>
+
+<p>
+\[O(Y = i) = P(Y = i)\ /\ (1 - P(Y = i )).\]
+</p>
+
+<p>
+In logistic regression, we predict the log odds
+</p>
+
+<p>
+\[logO(Y = 1) = log(O(Y = 1)) = logit(P(Y = 1)),\]
+</p>
+
+<p>
+where the logit function is defined as
+</p>
+
+<p>
+\[logit(p) = log(p\ /\ (1 - p)).\]
+</p>
+
+<p>
+We use this transformation because whereas probabilities are bounded by 0 and 1, and odds are bounded by 0 and infinity, log odds are unbounded.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org5c31aff" class="outline-2">
+<h2 id="org5c31aff"><span class="section-number-2">2</span> Zero-predictor model</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+The zero-predictor model is
+</p>
+
+<p>
+\[logO(Y = 1) = \beta_0,\]
+</p>
+
+<p>
+and therefore in logistic regression \(B_0\) is simply \(logO(Y = 1)\), and can be converted into the probability of \(Y = 1\) using the inverse logit function,
+</p>
+
+<p>
+\[logit^{-1}(o) = exp(o)\ /\ (1 + exp(o)).\]
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0200c28" class="outline-2">
+<h2 id="org0200c28"><span class="section-number-2">3</span> Single-predictor model</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+In the single predictor scenario we add a covariate to the model:
+</p>
+
+<p>
+\[logO(Y = 1) = \beta_{0} + \beta_{1}X_{1}.\]
+</p>
+
+<p>
+Here \(\beta_{0}\) is the log odds of \(Y = 1\) when \(X_1 = 0\), and \(\beta_{1}\) is the log odds ratio
+</p>
+
+<p>
+\[logOR(X_{1}) = log(OR(X_{1})).\]
+</p>
+
+<p>
+If \(X_{1}\) is dichotomous, then
+</p>
+
+<p>
+\[OR(X_{1}) = O(Y = 1\ |\ X_{1} = 1)\ /\ O(Y = 1\ |\ X_{1} = 0),\]
+</p>
+
+<p>
+and if it is continuous then
+</p>
+
+<p>
+\[OR(X_{1}) = O(Y = 1\ |\ X_{1} = i + 1)\ /\ O(Y = 1\ |\ X_{1} = i),\]
+</p>
+
+<p>
+i.e., the odds ratio for each 1 unit change in \(X_1\). You can change the unit by multiplying \(X_{1}\) by the reciprocal of the unit that you want. For example, to change it from a 1 unit increase to a 50 unit increase you would divide \(X_{1}\) by 50.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8ee75c7" class="outline-2">
+<h2 id="org8ee75c7"><span class="section-number-2">4</span> N-predictor model</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+In the N-predictor scenario, we have N covariates in the model:
+</p>
+
+<p>
+\[logO(Y = 1) = \beta_{0} + \beta_{1}X_{1} +\ ...\ + \beta_{N}X_{N}.\]
+</p>
+
+<p>
+The interpretation is the same, except that the beta coefficients are "adjusted": they represent the log odds ratio for that covariate when the other covariates are held constant at their means.
+</p>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <div class='bottom-bar'>

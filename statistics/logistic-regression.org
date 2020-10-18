@@ -1,0 +1,63 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../theme.css">
+
+#+NAME: add-bars
+#+BEGIN_SRC emacs-lisp :exports none :results output
+  (load-file "../bars.el")
+#+END_SRC
+#+CALL: add-bars()
+
+#+TITLE: Logistic Regression
+
+* Introduction
+
+Suppose we have a dichotomous outcome variable, $Y = (0, 1)$. Let $P(Y = i)$ denote the probability that $Y$ will take the value $i$, and $O(Y = i)$ denote the odds that $Y$ will take the value $i$, where
+
+$$O(Y = i) = P(Y = i)\ /\ (1 - P(Y = i )).$$
+
+In logistic regression, we predict the log odds
+
+$$logO(Y = 1) = log(O(Y = 1)) = logit(P(Y = 1)),$$
+
+where the logit function is defined as
+
+$$logit(p) = log(p\ /\ (1 - p)).$$
+
+We use this transformation because whereas probabilities are bounded by 0 and 1, and odds are bounded by 0 and infinity, log odds are unbounded.
+
+* Zero-predictor model
+
+The zero-predictor model is
+
+$$logO(Y = 1) = \beta_0,$$
+
+and therefore in logistic regression $B_0$ is simply $logO(Y = 1)$, and can be converted into the probability of $Y = 1$ using the inverse logit function,
+
+$$logit^{-1}(o) = exp(o)\ /\ (1 + exp(o)).$$
+
+* Single-predictor model
+
+In the single predictor scenario we add a covariate to the model:
+
+$$logO(Y = 1) = \beta_{0} + \beta_{1}X_{1}.$$
+
+Here $\beta_{0}$ is the log odds of $Y = 1$ when $X_1 = 0$, and $\beta_{1}$ is the log odds ratio
+
+$$logOR(X_{1}) = log(OR(X_{1})).$$
+
+If $X_{1}$ is dichotomous, then
+
+$$OR(X_{1}) = O(Y = 1\ |\ X_{1} = 1)\ /\ O(Y = 1\ |\ X_{1} = 0),$$
+
+and if it is continuous then
+
+$$OR(X_{1}) = O(Y = 1\ |\ X_{1} = i + 1)\ /\ O(Y = 1\ |\ X_{1} = i),$$
+
+i.e., the odds ratio for each 1 unit change in $X_1$. You can change the unit by multiplying $X_{1}$ by the reciprocal of the unit that you want. For example, to change it from a 1 unit increase to a 50 unit increase you would divide $X_{1}$ by 50.
+
+* N-predictor model
+
+In the N-predictor scenario, we have N covariates in the model:
+
+$$logO(Y = 1) = \beta_{0} + \beta_{1}X_{1} +\ ...\ + \beta_{N}X_{N}.$$
+
+The interpretation is the same, except that the beta coefficients are "adjusted": they represent the log odds ratio for that covariate when the other covariates are held constant at their means.
