@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-10-18 Sun 11:33 -->
+<!-- 2020-10-18 Sun 11:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Logistic Regression</title>
@@ -282,16 +282,16 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgb66875c">1. Introduction</a></li>
-<li><a href="#org5c31aff">2. Zero-predictor model</a></li>
-<li><a href="#org0200c28">3. Single-predictor model</a></li>
-<li><a href="#org8ee75c7">4. N-predictor model</a></li>
+<li><a href="#org10384a1">1. Introduction</a></li>
+<li><a href="#org83d1810">2. Zero-predictor model</a></li>
+<li><a href="#org69cd042">3. Single-predictor model</a></li>
+<li><a href="#org3877b63">4. N-predictor model</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgb66875c" class="outline-2">
-<h2 id="orgb66875c"><span class="section-number-2">1</span> Introduction</h2>
+<div id="outline-container-org10384a1" class="outline-2">
+<h2 id="org10384a1"><span class="section-number-2">1</span> Introduction</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Suppose we have a dichotomous outcome variable, \(Y = (0, 1)\). Let \(P(Y = i)\) denote the probability that \(Y\) will take the value \(i\), and \(O(Y = i)\) denote the odds that \(Y\) will take the value \(i\), where
@@ -323,8 +323,8 @@ We use this transformation because whereas probabilities are bounded by 0 and 1,
 </div>
 </div>
 
-<div id="outline-container-org5c31aff" class="outline-2">
-<h2 id="org5c31aff"><span class="section-number-2">2</span> Zero-predictor model</h2>
+<div id="outline-container-org83d1810" class="outline-2">
+<h2 id="org83d1810"><span class="section-number-2">2</span> Zero-predictor model</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 The zero-predictor model is
@@ -344,8 +344,8 @@ and therefore in logistic regression \(B_0\) is simply \(logO(Y = 1)\), and can 
 </div>
 </div>
 
-<div id="outline-container-org0200c28" class="outline-2">
-<h2 id="org0200c28"><span class="section-number-2">3</span> Single-predictor model</h2>
+<div id="outline-container-org69cd042" class="outline-2">
+<h2 id="org69cd042"><span class="section-number-2">3</span> Single-predictor model</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 In the single predictor scenario we add a covariate to the model:
@@ -376,17 +376,17 @@ and if it is continuous then
 </p>
 
 <p>
-\[OR(X_{1}) = O(Y = 1\ |\ X_{1} = i + 1)\ /\ O(Y = 1\ |\ X_{1} = i),\]
+\[OR(X_{1}) = O(Y = 1\ |\ X_{1} = j)\ /\ O(Y = 1\ |\ X_{1} = j - 1),\]
 </p>
 
 <p>
-i.e., the odds ratio for each 1 unit change in \(X_1\). You can change the unit by multiplying \(X_{1}\) by the reciprocal of the unit that you want. For example, to change it from a 1 unit increase to a 50 unit increase you would divide \(X_{1}\) by 50.
+i.e., the odds ratio for each 1 unit change in \(X_1\). You can change the number of units by dividing \(X_{1}\) by the number that you want. For example, to change it from a 1 unit increase to a 50 unit increase you would divide \(X_{1}\) by 50.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org8ee75c7" class="outline-2">
-<h2 id="org8ee75c7"><span class="section-number-2">4</span> N-predictor model</h2>
+<div id="outline-container-org3877b63" class="outline-2">
+<h2 id="org3877b63"><span class="section-number-2">4</span> N-predictor model</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 In the N-predictor scenario, we have N covariates in the model:

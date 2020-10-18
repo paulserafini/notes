@@ -50,9 +50,9 @@ $$OR(X_{1}) = O(Y = 1\ |\ X_{1} = 1)\ /\ O(Y = 1\ |\ X_{1} = 0),$$
 
 and if it is continuous then
 
-$$OR(X_{1}) = O(Y = 1\ |\ X_{1} = i + 1)\ /\ O(Y = 1\ |\ X_{1} = i),$$
+$$OR(X_{1}) = O(Y = 1\ |\ X_{1} = j)\ /\ O(Y = 1\ |\ X_{1} = j - 1),$$
 
-i.e., the odds ratio for each 1 unit change in $X_1$. You can change the unit by multiplying $X_{1}$ by the reciprocal of the unit that you want. For example, to change it from a 1 unit increase to a 50 unit increase you would divide $X_{1}$ by 50.
+i.e., the odds ratio for each 1 unit change in $X_1$. You can change the number of units by dividing $X_{1}$ by the number that you want. For example, to change it from a 1 unit increase to a 50 unit increase you would divide $X_{1}$ by 50.
 
 * N-predictor model
 
